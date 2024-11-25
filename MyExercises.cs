@@ -483,11 +483,6 @@ namespace QBM.CompositionApi
             // Ex 05 - Predefined SQL
             // Designer -> Base data -> Advanced -> Predifined SQL
             // to assign permission group to predifined SQL: Object Browser -> QBMGroupHasLimitedSQL -> Insert -> Foreign keys edit
-            //select p.FirstName, p.LastName, dd.FullPath from person p
-            //left join Department dd on dd.UID_Department = p.UID_Department
-            //where p.PersonalTitle = 'Software Tester'
-            //and p.FirstName Like 'K%'
-            //and p.Description = 'IdentityAdmins'
 
 
             // Add a POST method named "api_exercises/exe_predefined_sql" to the API
@@ -630,6 +625,7 @@ namespace QBM.CompositionApi
             public string Value { get; set; }
         }
 
+        // PostedDataPredefSQL represents the request data which will be used on the execution of the Predefined SQL
         public class PostedDataPredefSQL 
         { 
             public string PersonTitle { get; set; }
