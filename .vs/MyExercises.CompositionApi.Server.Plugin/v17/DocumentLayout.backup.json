@@ -8,9 +8,6 @@
     },
     {
       "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|MyExercises.CompositionApi.Server.Plugin||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1A17657E-077F-442D-8199-E89A3C560909}|MyExercises.CompositionApi.Server.Plugin.csproj|c:\\users\\oneim\\desktop\\api_ex\\myexercises.compositionapi.server.plugin\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|5e9a8ac2-4f34-4521-858f-4c248ba31532"
     }
   ],
   "DocumentGroupContainers": [
@@ -20,8 +17,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
@@ -31,8 +32,7 @@
               "ToolTip": "C:\\Users\\OneIM\\Desktop\\API_EX\\MyExercises.CompositionApi.Server.Plugin\\MyExercises.CompositionApi.Server.Plugin.csproj",
               "RelativeToolTip": "MyExercises.CompositionApi.Server.Plugin.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-11-08T14:57:38.538Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-08T14:57:38.538Z"
             },
             {
               "$type": "Document",
@@ -42,7 +42,7 @@
               "RelativeDocumentMoniker": "MyExercises.cs",
               "ToolTip": "C:\\Users\\OneIM\\Desktop\\API_EX\\MyExercises.CompositionApi.Server.Plugin\\MyExercises.cs",
               "RelativeToolTip": "MyExercises.cs",
-              "ViewState": "AgIAABcCAAAAAAAAAADwvzcCAABIAAAAAAAAAA==",
+              "ViewState": "AgIAALoBAAAAAAAAAADwv9gBAAB/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-05T11:53:49.636Z",
               "EditorCaption": ""
