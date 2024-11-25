@@ -457,6 +457,7 @@ namespace QBM.CompositionApi
                             CreationType = EntityCreationType.DelayedLogic
                         }, ct).ConfigureAwait(false);
 
+
                         // Set the values for the new 'PersonWantsOrg' entity - test 1
                         await newPWOAssignment.PutValueAsync("UID_PersonInserted", uid_loggedinUser, ct).ConfigureAwait(false);
                         await newPWOAssignment.PutValueAsync("UID_PersonOrdered", uid_person_to_assign_group, ct).ConfigureAwait(false);
