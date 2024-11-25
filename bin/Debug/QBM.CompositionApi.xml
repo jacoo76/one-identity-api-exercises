@@ -1,0 +1,2846 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QBM.CompositionApi</name>
+    </assembly>
+    <members>
+        <member name="T:QBM.CompositionApi.BulkLoad.BulkLoader">
+            <summary>
+            Helper class to load a list of objects (represented by their object keys) efficiently from the database.
+            </summary>
+            <remarks><para>This class supports flexible loading of database objects. This class covers the following use cases:</para>
+            <list type="item">
+            <item>Loading objects related to an existing row, using a foreign-key relation.</item>
+            <item>Loading objects related to an existing row, using an object key relation, where the object keys can point to one or more tables.</item>
+            <item>Loading objects represented by an XML object key.</item>
+            <item>Loading objects that are members of an M:N assignment, represented by an XML assignment object key.</item>
+            </list></remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.BulkLoad.BulkLoader.#ctor(VI.DB.Entities.ISession)">
+            <summary>
+            Creates a new bulk loader.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.BulkLoader.LoadStepCount">
+            <summary>
+            Maximum number of objects to load in one bulk operation.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.BulkLoad.BulkLoader.HandleBaseTableObjects">
+            <summary>If this flag is set, base table objects are converted to view table objects.</summary>
+            <remarks>
+            <para>When the bulk loader encounters a base table object (<see cref="F:VI.DB.TableType.BaseTable"/>), it looks up the actual view object type and
+            loads an object of the view type (<see cref="F:VI.DB.TableType.View" />) instead. For example, instead of loading an object of type <c>BaseTree</c>, the loader will
+            load an object of the particular view type (for example, <c>Department</c>).</para>
+            <para>This handling also applies to foreign-key relations and object keys pointing to base tables.</para>
+            <para>This option is enabled by default as base table objects are not to be directly loaded in most cases.</para>
+            </remarks>
+        </member>
+        <member name="P:QBM.CompositionApi.BulkLoad.BulkLoader.HandleProxyTableObjects">
+            <summary>
+            If this flag is set, proxy table objects are converted to their actual object type.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.BulkLoader.SingleShotTables">
+            <summary>
+            Returns list of table names that will be loaded in single-shot mode for every <c>XObjectKey</c> value.
+            This list should contains tables that cannot be filtered efficiently for <c>XObjectKey</c> values.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.BulkLoad.BulkLoader.ResolveObjectMode">
+            <summary>
+            Sets the assignment object resolving mode. This is used only when the column contains M:N object keys.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.BulkLoad.BulkLoader.InsertObjectKeyAsync(VI.DB.Entities.IEntity,System.String,VI.DB.MetaData.IMetaColumn,System.Threading.CancellationToken)">
+            <summary>
+            Adds a new object to the bulk-loading process.
+            </summary>
+            <remarks><para>This method can be used for one of the following cases:</para>
+            <list type="bullet">
+            <item>If the column is a foreign-key column (according to the column's metadata), the data value is assumed to be a primary key of the related table.</item>
+            <item>Otherwise, the data value must be an object key in XML notation.
+            </item>
+            </list></remarks>
+            <param name="row">The row containing the object reference value.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.BulkLoad.BulkLoader.InsertObjectKeyAsync(VI.DB.DbObjectKey,System.Threading.CancellationToken)">
+            <summary>
+            Adds a new object key to the bulk-loading process.
+            </summary>
+            <param name="key">The key of the object to load</param>
+        </member>
+        <member name="M:QBM.CompositionApi.BulkLoad.BulkLoader.LoadWithObjectKeysAsync(System.Threading.CancellationToken)">
+            <summary>
+            Loads the referenced entities, stored by their object key.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.BulkLoad.ResolveMNObjectMode">
+            <summary>
+            This enumeration drives the resolving of assignment objects when resolving object keys.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.ResolveMNObjectMode.NoResolve">
+            <summary>
+            The M:N assignment object is loaded from the database as a regular object.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.ResolveMNObjectMode.CreateMNObject">
+            <summary>
+            The M:N assignment object is created in memory.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.ResolveMNObjectMode.ResolveIfExists">
+            <summary>
+            The two objects referenced by the assignment are loaded, but only if the assignment actually exists in the database.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.BulkLoad.ResolveMNObjectMode.ResolveAlways">
+            <summary>
+            The two objects referenced by the assignment are loaded.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Cache.BulkCache`3">
+            <summary>
+            Caches objects indexed by a key, with the possibility to retrieve objects
+            in bulk.
+            </summary>
+            <remarks><para>The BulkCache class supports bulk lookups from the data source. For instance,
+            suppose you are looking up the keys A, B and C. The cache contains a valid value for B.
+            The lookup function is then only called only for values A and C.</para>
+            <para>The cache also supports a maximum cache size and a maximum lifetime for each cache entry.</para>
+            </remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.BulkCache`3.#ctor(System.Func{`0,System.Collections.Generic.IReadOnlyList{`1},System.Threading.CancellationToken,System.Threading.Tasks.Task{System.Collections.Generic.IReadOnlyList{`2}}},QBM.CompositionApi.Cache.IMemoryCache,System.Func{`1,System.String})">
+            <summary>
+            Creates a cache with bulk lookup functionality.
+            </summary>
+            <param name="lookup">Lookup function. The returned list must contain the values in the same order as the keys.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.BulkCache`3.#ctor(System.Func{`0,`1,System.Threading.CancellationToken,System.Threading.Tasks.Task{`2}},QBM.CompositionApi.Cache.IMemoryCache,System.Func{`1,System.String})">
+            <summary>
+            Creates a cache with single-key lookup.
+            </summary>
+            <param name="lookup">Lookup function.</param>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.BulkCache`3.IsBypassCache">
+            <summary>
+            Gets or sets a function that returns whether the cache must be bypassed
+            for the specified ambient object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.BulkCache`3.GetValueAsync(`0,`1,System.Threading.CancellationToken)">
+            <summary>
+            Retrieve value for the specified key.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.BulkCache`3.GetValuesAsync(`0,System.Collections.Generic.IReadOnlyList{`1},System.Threading.CancellationToken)">
+            <summary>
+            Retrieve values for the specified keys.
+            </summary>
+            <returns>Values in the same order as the keys</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.BulkCache`3.Add(`1,`2)">
+            <summary>
+            Adds a cache entry that has been loaded out-of-band.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Cache.DisabledCache">
+            <summary>
+            ICache implementation that performs no actual caching.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.IEntityDisplayCache.GetDisplaysAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{VI.DB.DbObjectKey},System.Boolean,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns display values for the specified objects for the current culture.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.IEntityDisplayCache.Add(VI.DB.DbObjectKey,VI.DB.Entities.IEntity)">
+            <summary>
+            Adds an entity to the display cache.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Cache.ICache">
+            <summary>
+            Defines common methods for time-based caches.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.ICache.CacheLifetimeMinutes">
+            <summary>
+            Gets or sets the lifetime of a cache entry.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.ICache.IsDisabled">
+            <summary>
+            Gets or sets a flag indicating whether the cache is disabled.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.ICache.ObjectCount">
+            <summary>
+            Returns the number of objects stored in the cache.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.ICache.HitCount">
+            <summary>
+            Returns the number of objects stored in the cache.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Cache.ICache.AccessCount">
+            <summary>
+            Returns the number of objects stored in the cache.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.ICache.Flush">
+            <summary>
+            Flushes the entire cache.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Cache.IDbObjectKeyCache">
+            <summary>
+            Interface for caches using object UIDs or keys as their cache key
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.IDialogTagCache.GetTagConfigAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Returns configuration data for the supplied tag UIDs.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.ITimeZoneCache.GetTimeZoneInfoIdAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the MS/Windows time zone identifier for the specified ID (of IANA or MS/Windows format).
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Cache.NoCache">
+            <summary>
+            Transparent IMemoryCache implementation that does not cache anything.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Cache.Permissions.HasLimitedPermissionsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken,System.String[])">
+            <summary>
+            Returns a flag indicating whether the session has CanSee restrictions for at least one of the tables.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.BufferedCollection">
+            <summary>
+            Loads data from the database incrementally.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.DateValueFormatter">
+            <summary>
+            Fixes DateTime values for database storage using time zones and DateFormat specifiers.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.DialogParameterAdapter">
+            <summary>
+            Wraps a DialogParameterSet.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.DialogParameterAdapter.IsReadOnly">
+            <summary>
+            Gets or sets a flag indicating whether parameters obtained through this provider are read-only.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.DialogParameterExtensions.SetNullIfInvalidValueAsync(VI.DB.IDialogParameter,VI.DB.Entities.ISession,VI.DB.Entities.IEntity,System.Threading.CancellationToken)">
+            <summary>
+            Checks query-type parameters if the parameter value still matches the parameter's WHERE clause and limited-value setting.
+            If not, the value is set to <c>NULL</c>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.DialogParameterExtensions.IsValidQueryValueAsync(VI.DB.IDialogParameter,VI.DB.Entities.ISession,VI.DB.Entities.IEntity,System.Threading.CancellationToken)">
+            <summary>
+            Checks query-type parameters if the parameter value still matches the parameter's WHERE clause.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.DialogParameterProvider.CheckParametersAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Checks if there should be a parameter set (if there is a parent parameter set), and creates/adjusts
+            the parameter set accordingly.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.Group">
+            <summary>
+            Represents a logical data group.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.Group.Display">
+            <summary>
+            Gets or sets an identifying display name for the group
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.Group.CompareOp">
+            <summary>
+            Gets or sets the logical compare operator.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.Group.CompareValue1">
+            <summary>
+            Gets or sets the comparison value.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.Group.CompareValue2">
+            <summary>
+            Gets or sets a second comparison value. If this value is set, assume the operator to be <c>between</c>.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.IEntitySortCache">
+            <summary>
+            Caches sorted lists of entities. The sorted list is cached for the current culture.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.IEntitySortCache.DisplayPattern">
+            <summary>
+            Gets or sets the display pattern to use for sorting.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.IHierarchyProvider.IsHierarchy">
+            <summary>
+            Returns a flag indicating if the data should be considered hierarchical.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.IHierarchyProvider.GetWhereClauseFlat">
+            <summary>
+            Returns the WHERE clause to obtain all valid rows on all levels.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.IHierarchyProvider.GetWhereClause(System.String)">
+            <summary>
+            Returns the WHERE clause to obtain all valid rows underneath the specified parent UID.
+            </summary>
+            <remarks>The method checks the value of <paramref name="parentUid"/> for validity.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.IHierarchyProvider.GetWhereClauseOfParents(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Returns the WHERE clause to obtain all valid rows underneath the specified parent UID
+            of rows that are parents of at least one other row.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.IImageConstraint">
+            <summary>
+            Represents constraints on image data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.IImageConstraint.MaxSizeBytes">
+            <summary>
+            Gets or sets the maximum size, in bytes, of the image data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.IImageConstraint.MaxSize">
+            <summary>
+            Gets the maximum allowed dimensions of an image.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.ImageConstraint">
+            <summary>
+            Represents constraints on image data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.ImageProcessor.DisableResizing">
+            <summary>
+            If this option is set, an exception will be thrown on images that
+            do not meet the constraint.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.ImageProcessor.Process(System.Byte[])">
+            <summary>
+            Verifies that the binary data is a valid image, and checks the image size
+            constraint. If the contraint is not met, the image is resized until
+            it mets the size constraint.
+            </summary>
+            <returns>The original or resized image.</returns>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.IQueryResultCache">
+            <summary>
+            Caches object keys resulting from a specific query.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.ISearchResultFilter">
+            <summary>
+            Filter for search results.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.ISearchService">
+            <summary>
+            Provides search configuration and search functionality.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.ISearchService.AddSearchConfig(System.String,QBM.CompositionApi.Data.ISearchConfig)">
+            <summary>
+            Adds a new table-specific configuration object.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Data.SearchConfigMode.CustomSearchDynamicFkColumn">
+            <summary>
+            The specified column is considered a dynamic foreign-key column containing object keys.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Data.SearchConfigMode.CustomSearchColumn">
+            <summary>
+            The specified column is used as a search and selection column.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.ISearchConfig.Mode">
+            <summary>
+            Returns the search mode for this table.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.ISearchConfig.CustomFkParentTableName">
+            <summary>
+            If <see cref="P:QBM.CompositionApi.Data.ISearchConfig.Mode" /> is <see cref="F:QBM.CompositionApi.Data.SearchConfigMode.CustomSearchColumn"/>, this property can be
+            used to declare that the column should be treated as an artificial foreign-key column to this table.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.ISearchConfig.ColumnName">
+            <summary>
+            Returns the column name. The meaning depend on the <see cref="P:QBM.CompositionApi.Data.ISearchConfig.Mode"/> value.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Data.OnDemandParameterAdapter">
+            <summary>
+            Parameter adapter implementation that creates a parameter set only after the first parameter has been added.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.Search.SearchResultFilter">
+            <summary>
+            This filter is used to filter the search result and load as many matches as possible.
+            This will prevent the search from hitting <see cref="P:QBM.CompositionApi.Data.SearchResult.IsLimitReached">result set limits</see>.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Data.SearchResult.IsPreFiltered">
+            <summary>
+            Indicates whether the result was pre-filtered by the supplied <see cref="T:QBM.CompositionApi.Data.ISearchResultFilter">search result filter</see>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.SqlHelper.GetSqlSearchColumns(VI.DB.MetaData.IMetaTable)">
+            <summary>
+            Returns the columns that are part of the display pattern for the given table.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.SqlHelper.GetDisplayPatternColumns(System.String,VI.DB.MetaData.IMetaTable)">
+            <summary>
+            Returns the columns that are part of the display pattern of a table.
+            </summary>
+            <seealso cref="P:VI.DB.Entities.IEntityClass.DisplayPattern"/>
+        </member>
+        <member name="M:QBM.CompositionApi.Data.SqlHelper.GetDisplayPatternColumns(System.String)">
+            <summary>
+            Returns the column names that are part of the given display pattern.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Chart.HeatmapData.History">
+            <summary>
+            Historical values. The values in this array correspond to the dates in the <seealso cref="P:QBM.CompositionApi.Chart.HeatmapDto.HistoryDates"/> array.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Chart.HeatmapDto.Date">
+            <summary>
+            Time of data generation
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Chart.HeatmapDto.HistoryDates">
+            <summary>
+            Array of dates for the historical values of each data point.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Chart.IChartAccess">
+            <summary>
+            Access control object that manages access to a chart.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Chart.IChartInfo.UseObjectDisplayAsName">
+            <summary>
+            Gets or sets a flag indicating whether the object display should be used
+            as the element display if there is exactly one series for the object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Chart.IChartService.GetChartInfosAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of chart definitions available to the authenticated user.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Chart.IChartService.TryGetChartInfo(VI.DB.Entities.ISession,System.String)">
+            <summary>
+            Returns the list of chart definitions available to the authenticated user.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Compilation.ExtendedCSharpCodeDomProvider">
+            <summary>
+            Extended C# CodeDOM provider that supports async/await and lambda statements.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Compilation.ExtendedCSharpCodeDomProvider.ExtendedCSharpCodeGenerator.System#CodeDom#Compiler#ICodeGenerator#GenerateCodeFromExpression(System.CodeDom.CodeExpression,System.IO.TextWriter,System.CodeDom.Compiler.CodeGeneratorOptions)">
+            <internalonly/> 
+        </member>
+        <member name="M:QBM.CompositionApi.Compilation.ExtendedCSharpCodeDomProvider.ExtendedCSharpCodeGenerator.System#CodeDom#Compiler#ICodeGenerator#GenerateCodeFromCompileUnit(System.CodeDom.CodeCompileUnit,System.IO.TextWriter,System.CodeDom.Compiler.CodeGeneratorOptions)">
+            <internalonly/> 
+        </member>
+        <member name="M:QBM.CompositionApi.Compilation.ExtendedCSharpCodeDomProvider.ExtendedCSharpCodeGenerator.GenerateCodeFromNamespace(System.CodeDom.CodeNamespace,System.IO.TextWriter,System.CodeDom.Compiler.CodeGeneratorOptions)">
+            <internalonly/>
+        </member>
+        <member name="M:QBM.CompositionApi.Compilation.ExtendedCSharpCodeDomProvider.ExtendedCSharpCodeGenerator.GenerateCodeFromStatement(System.CodeDom.CodeStatement,System.IO.TextWriter,System.CodeDom.Compiler.CodeGeneratorOptions)">
+            <internalonly/> 
+        </member>
+        <member name="T:QBM.CompositionApi.Components.IComponentType`1">
+            <summary>
+            Represents a component type.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Components.IComponentType`1.Assignments">
+            <summary>
+            Contains the different implementations of the component, distinguished by
+            a key.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Config.AddResult">
+            <summary>
+            Represents either a node or a setting.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Config.AddResult.WasAdded">
+            <summary>
+            Returns a flag indicating whether the node or setting was added by this operation.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Config.CompositeConfigNodeProvider">
+            <summary>
+            Builds a composite configuration node, combining configuration nodes
+            from a list of providers into a unified node.
+            </summary>
+            <remarks>The names of child nodes and settings must be unique to avoid
+            naming conflicts. The first configuration provider defines the name of the
+            composite provider.</remarks>
+        </member>
+        <member name="F:QBM.CompositionApi.Config.ConfigSettingType.Sql">
+            <summary>
+            The setting contains SQL text.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Config.ConfigSettingType.PositiveInt">
+            <summary>
+            This setting contains an integer equal to or higher than 0.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Config.ConfigSettingType.RiskIndex">
+            <summary>
+            This setting contains a double value between 0 and 1, including 0 and 1.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Config.ConfigSettingType.PositiveDouble">
+            <summary>
+            This setting contains a double value equal to or higher than 0.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Config.ConfigValueProviderAttribute">
+            <summary>
+            Defines a type that provides values for a configuration setting. The type must implement
+            <see cref="T:QBM.CompositionApi.Config.IConfigSettingValueProvider"/>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.ExtensionMethods.GetConfigValuesWithStatus(QBM.CompositionApi.Config.IConfigService)">
+            <summary>
+            Returns all configuration settings along with their customization status, or <c>null</c> if
+            the setting has not been customized.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.ExtensionMethods.RegisterConfigurableObject(QBM.CompositionApi.Config.IConfigService,System.Object,System.String)">
+            <summary>
+            Registers a configurable object.
+            </summary>
+            <remarks>The configurable properties are obtained through reflection.
+            Currently, the configuration service supports public properties of the
+            data types <c>string</c>, <c>int</c>, <c>double</c> and <c>bool</c>. Property
+            references to other objects are also evaluated.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigDefinitionService.AddConfigNode(QBM.CompositionApi.Config.IConfigNode)">
+            <summary>
+            Adds the specified node to the root Composition API configuration node.
+            </summary>
+            <param name="node"></param>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigSettingQueue.FinishQueue">
+            <summary>
+            Processes all entries in the queue, and deactivates the queue.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Config.IConfigNode.Name">
+            <summary>
+            Gets the technical key for this node.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Config.IConfigService">
+            <summary>
+            Service that manages configuration objects and exposes them through a key/value
+            structure.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.GetConfigNodes">
+            <summary>
+            Returns the top-level configuration nodes.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.GetStatus(System.String)">
+            <summary>
+            Returns the customization status, or <c>null</c> if the setting has not been customized.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.TryGetOrAdd(System.String,QBM.CompositionApi.Config.GetSettingMode)">
+            <summary>
+            Gets or adds a config node or setting addressed by the path.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.ApplySettings(System.Collections.Generic.IDictionary{System.String,System.Object},QBM.CompositionApi.Config.ConfigLevel)">
+            <summary>
+            Applies the values from the supplied dictionary.
+            </summary>
+            <remarks>Settings are applied as soon as possible. If any settings
+            cannot be applied when the API builder finishes processing, an
+            exception is thrown.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.ConvertCustomizations(System.Boolean,System.Collections.Generic.ISet{System.String})">
+            <summary>
+            Converts the type of customizations.
+            </summary>
+            <param name="toGlobal">If true, converts local customizations to global customizations. Otherwise, converts the other way round.</param>
+            <param name="keys">The set of keys to convert. If this is <c>null</c>, converts all keys.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.IConfigService.GetAddedPaths">
+            <summary>
+            Returns the paths of settings and nodes that were added as part of customization.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Config.IConfigSettingStatus.Value">
+            <summary>
+            Returns the current effective value.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Config.ISupportsAddRemove.AddKey(System.String)">
+            <summary>
+            Adds an entry for the specified key.
+            </summary>
+            <remarks>Note that the entry may result in a configuration setting or a child node,
+            depending on the data type of the dictionary.</remarks>
+        </member>
+        <member name="P:QBM.CompositionApi.Config.ReflectionConfigNode.Dictionary">
+            <summary>
+            Get or set the dictionary where new settings can be added.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Dialog.IDialogEngineProxy.Engine">
+            <summary>
+            Provides access to the underlying engine.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Dialog.IDialogEngineProxy.LockAsync">
+            <summary>
+            Synchronizes access to the engine.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.DisplaySingular">
+            <summary>
+            Helper class to provide table display names in singular form.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Export.CsvExport.CsvSeparator">
+            <summary>
+            Gets or sets the CSV separator.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Extensions.GetMnDisplayAsync(VI.DB.DbObjectKey,VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Build an object display for the supplied M:N object key.
+            </summary>
+            <remarks><para>This method can be used when a key of an M:N object is known, and the member objects themselves are
+            visible, but the M:N object itself is not visible due to lack of permissions. This method resolves the display
+            values of the member objects and builds the M:N object display.</para>
+            <para>The method throws an exception if the key is not an M:N table key,
+            or if one of the primary key columns of the M:N table
+            is not a foreign-key column.</para></remarks>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.Extensions.GetObjectKeyAsync(VI.DB.Entities.IEntity,VI.DB.MetaData.IMetaData,System.Threading.CancellationToken)">
+            <summary>
+            Returns the object key for this entity, giving priority to the content of
+            the XObjectKey column.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Extensions.Select``2(System.Collections.Generic.IReadOnlyList{``0},System.Func{``0,``1})">
+            <summary>
+            Variant of the Linq Select method optimized for read-only lists/arrays.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.FkEmbedFilterStrategy">
+            <summary>
+            Loads matches on the referenced table, then embeds the resulting primary keys in a WHERE clause.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.FkWhereClauseFilterStrategy">
+            <summary>
+            Directly embeds the WHERE clause for a foreign-key table.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.InMemoryPostLoadFilterStrategy">
+            <summary>
+            Loads matches on the referenced table by fetching displays as a post-load step
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.FilterStrategy.IPostLoadFilter.RequiresDisplayValues">
+            <summary>
+            If this flag is set, the entities must be loaded with display values.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.FilterStrategy.IPostLoadFilter.RequiredColumns">
+            <summary>
+            Returns the list of columns that the entities must contain.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.FilterStrategy.IPostLoadFilter.FilterEntitiesAsync(System.Collections.Generic.IEnumerable{VI.DB.Entities.IEntity},System.Threading.CancellationToken)">
+            <summary>
+            Processes the input list by filtering or sorting them.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.PermissionBasedFilter">
+            <summary>
+            Class to build filter clauses that applies a user's permissions.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.FilterStrategy.PermissionBasedFilter.GetFilterAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Generates a WHERE clause to return only rows with read permissions on a specific column for the current user.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="ct">Cancellation support</param>
+            <returns>If the user has any permissions, returns the WHERE clause. If the user
+            has no permissions, and no data should be loaded, returns a result indicating failure.</returns>
+        </member>
+        <member name="F:QBM.CompositionApi.FilterStrategy.ForceStrategy.None">
+            <summary>
+            Finds the best strategy.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.FilterStrategy.ForceStrategy.WhereClause">
+            <summary>
+            No post-load filters must be generated. Any filtering has to be implemented inside the WHERE clause.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.FilterStrategy.SearchFilterStrategyBuilder.SearchResultFilter">
+            <inheritdoc cref="P:QBM.CompositionApi.Data.Search.SearchResultFilter"/>
+        </member>
+        <member name="P:QBM.CompositionApi.FilterStrategy.SearchFilterStrategyBuilder.DisplayPattern">
+            <summary>
+            Sets an alternate display pattern to be used for database searches.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.FilterStrategy.SearchFilterStrategyBuilder.FallbackToDbWhereClause">
+            <summary>
+            Gets or sets a flag indicating whether the search will be executed using a
+            SQL WHERE clause if the index returns too many results.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.FilterStrategy.SearchFilterStrategyBuilder.GetSqlSearchColumns(VI.DB.MetaData.IMetaTable)">
+            <summary>
+            Returns the columns that are part of the display pattern for the given table.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.FilterStrategy.SearchFilterStrategyBuilder.GetDisplayPatternColumns(System.String)">
+            <summary>
+            Returns the column names that are part of the given display pattern.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.SearchPostLoadFilter.SimpleLookup">
+            <summary>
+            Lookup using the XObjectKey column, matching the entities' XObjectKey value to search results.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.FilterStrategy.SearchPostLoadFilter.SelectionColumnLookup">
+            <summary>
+            Lookup using a selection column, returning all entities that have matching values in a specific column.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.ForeignWords.ForeignWord.Culture">
+            <summary>
+            Returns the identifier of the foreign word's culture.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.ForeignWords.ForeignWord.Value">
+            <summary>
+            Returns the foreign word string.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.ForeignWords.ForeignWord.CultureAppliesTo">
+            <summary>
+            Returns the culture in which this word is considered a foreign word.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.ForeignWords.ForeignWordsManager">
+            <inheritdoc cref="T:QBM.CompositionApi.ForeignWords.IForeignWordsManager" />
+        </member>
+        <member name="M:QBM.CompositionApi.ForeignWords.ForeignWordsManager.GetForeignWordsAsync(VI.DB.IMultiLanguageProvider,System.Globalization.CultureInfo,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:QBM.CompositionApi.ForeignWords.IForeignWordsManager">
+            <summary>
+            Manages foreign words for specific culture pairs.
+            </summary>
+            <remarks>The default implementation manages a set of English words that are considered
+            foreign words in German. Extend the <see cref="P:QBM.CompositionApi.ForeignWords.IForeignWordsManager.Words"/> collection to support more words
+            and cultures.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.ForeignWords.IForeignWordsManager.GetForeignWordsAsync(VI.DB.IMultiLanguageProvider,System.Globalization.CultureInfo,System.Threading.CancellationToken)">
+            <summary>
+            Returns the applicable foreign words for the supplied culture.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.AssignColumn.GetActiveObjectKeysAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns all objects to which the base object is currently assigned.
+            </summary>
+            <param name="session">Database session.</param>
+            <param name="uidObject">Primary key of the base object.</param>
+            <param name="ctx">Supports task cancellation.</param>
+            <returns></returns>
+        </member>
+        <member name="T:QBM.CompositionApi.History.Collector">
+            <summary>
+            Helper class that collects all providers providing historical data for a specific object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.Collector.CollectAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns historical data providers for an object identified by a type and a UID.
+            </summary>
+            <remarks>The <c>IHistoryConfig</c> interface is used to determine history data providers.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.History.DeletedObjectInfo">
+            <summary>
+            Holds information about a deleted object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.DeletedObjectInfo.DbObjectKey">
+            <summary>
+            Gets or sets the object key of the deleted object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.DeletedObjectInfo.DeletedBy">
+            <summary>
+            Gets or sets the name of the user who deleted the object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.DeletedObjectInfo.Display">
+            <summary>
+            Gets or sets the display name of the object at the time of its deletion.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.DeletedObjectInfo.DeletionDate">
+            <summary>
+            Gets or sets the date of deletion.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.DeletedObjectInfo.ChangeInfo">
+            <summary>
+            Gets or sets detailed information about the deletion operation.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.DeletedObjectProvider">
+            <summary>
+            Class providing information about deleted objects.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.DeletedObjectProvider.GetDeletedObjectsAsync(System.String,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Returns information about all deleted objects from the specified table.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoricColumn">
+            <summary>
+            Represents a column that appears in a historical value change, but does not exist in the schema anymore.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryAssignEvent">
+            <summary>
+            Represents an event where the base object was assigned to another object, or where such an assignment was removed.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryColumnChangeEvent">
+            <summary>
+            Represents an attribute change of an object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryDataProvider.DisableAutoWatchColumns">
+            <summary>
+            Gets or sets a value whether changes for watched columns the base object itself should be added.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryDataProvider.RelationTableInfos">
+            <summary>
+            Returns the list of relation tables belonging to this data group. The columns represent foreign-key columns in a M:N relation table.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryDataProvider.AssignColumns">
+            <summary>
+            Returns the list of assignment columns belonging to this data group. The columns represent foreign-key columns in a (non-M:N) table.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryDataProvider.AddMemberRelationTable(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Helper method to add a new member relation.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryDataProvider.AddAssignmentColumn(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Helper method to add a new assignment column.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryDataProvider.GetComparisonAsync(System.DateTime,System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{QBM.CompositionApi.History.IHistoryEvent},QBM.CompositionApi.History.IMembershipChangeActionProvider,System.Threading.CancellationToken)">
+            <summary>
+            Compares the current object state with a given point in time.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryDataProvider.GetWatchedColumnsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of columns that are currently enabled for change tracking.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryMembershipCompare">
+            <summary>
+            Describes a relationship of two objects that may have been created, deleted, or not changed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryMembershipCompare.OtherObjectDisplay">
+            <summary>
+            Returns the display name of the other object participating in the relation.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryMembershipCompare.ExistsNow">
+            <summary>
+            Returns a flag indicating whether the membership currently exists.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryObjectData">
+            <summary>
+            Represents historical data that is available about an object and its relationships.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryObjectData.Events">
+            <summary>
+            Returns all historical events.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryObjectData.StateItems">
+            <summary>
+            Returns all state overview items.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryObjectData.GetChangeDates">
+            <summary>
+            Returns a sorted list of dates where at least one data change has occurred.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.History.HistoryObjectData.GetComparisonAsync(System.DateTime,QBM.CompositionApi.ITranslator,QBM.CompositionApi.History.IMembershipChangeActionProvider,System.Threading.CancellationToken)">
+            <summary>
+            Compares the current object state with a given point in time.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryPropertyCompare">
+            <summary>
+            Describes a comparison of a single property value.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryCompare">
+            <summary>
+            Describes a comparison of a historical value with its corresponding current value.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.Id">
+            <summary>
+            Returns a identifier for this comparison item that is unique within all comparison items for one object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.ChangeType">
+            <summary>
+            Returns an identifier for the change type.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.Property">
+            <summary>
+            Returns a text describing what has changed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.CurrentValueDisplay">
+            <summary>
+            Returns a display string describing the current value.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.HistoryValueDisplay">
+            <summary>
+            Returns a display string describing the historical value.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.IsSelectedForRollback">
+            <summary>
+            Gets or sets a flag indicating whether this change is selected to be rolled back.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.HasChanged">
+            <summary>
+            Returns a flag indicating whether the property has changed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryCompare.TableName">
+            <summary>
+            Returns the associated database table name.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryCompare.GetRollbackActionsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns a list of actions that are required to restore the historical value.
+            </summary>
+            <remarks>The method returns an empty list of tasks if <see cref="P:QBM.CompositionApi.History.IHistoryCompare.IsSelectedForRollback"/> is <c>true</c>.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryConfig">
+            <summary>
+            Extensibility interface for history data configuration.
+            </summary>
+            <remarks>Implementing classes should add providers to the <c>IHistoryConfigContext</c>.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryDataProvider">
+            <summary>
+            Interface for history data providers.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryDataProvider.Key">
+            <summary>
+            The key of the base object for which historical data should be loaded.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryDataProvider.AddMemberRelationTable(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Adds a member relation table.
+            </summary>
+            <param name="tableName">Table name of the member relation</param>
+            <param name="columnNameBaseObject">Column name pointing to the base object.</param>
+            <param name="keyAdded">The key that will be used to build a display key for an added assignment.</param>
+            <param name="keyRemoved">The key that will be used to build a display key for a removed assignment.</param>
+            <param name="displayKey">The display key for a description of the member relation.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryDataProvider.AddAssignmentColumn(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Adds a table having an assignment to the base object.
+            </summary>
+            <param name="tableName">Table name of the other table.</param>
+            <param name="columnName">Column name pointing to the base object.</param>
+            <param name="keyAdded">The key that will be used to build a display key for an added assignment.</param>
+            <param name="keyRemoved">The key that will be used to build a display key for a removed assignment.</param>
+            <param name="displayKey">The display key for a description of the member relation.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryDataProvider.LoadDataAsync(System.Threading.CancellationToken)">
+            <summary>
+            Loads all history data according to the configuration of this class.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryDataSource">
+            <summary>
+            Interface for classes supplying historical data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryDataSource.LoadAsync(VI.DB.Entities.ISession,VI.Base.DateRange,System.Threading.CancellationToken)">
+            <summary>
+            Loads the historical data.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.HistoryDataResult">
+            <summary>
+            Encapsulates a list of historical events and a list of historical states.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryDataResult.Events">
+            <summary>
+            Returns the list of events.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.HistoryDataResult.State">
+            <summary>
+            Returns the list of states.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryEvent">
+            <summary>
+            Represents a data change event.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.ChangeInfo">
+            <summary>
+            Returns the database change information object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.ChangeTime">
+            <summary>
+            Returns the time the event occurred.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.IsRemoveEvent">
+            <summary>
+            Returns a flag indicating if this event should be considered a removal or deletion event.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.User">
+            <summary>
+            Returns the identifier of the user who made the data change.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.ChangeType">
+            <summary>
+            Returns an identifier for the change type.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.ChangeTypeDisplay">
+            <summary>
+            Returns a translated name for the change type.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.Property">
+            <summary>
+            Returns a text describing what has changed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.Display">
+            <summary>
+            Returns a text describing the new value or state after the event.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.OldValue">
+            <summary>
+            Returns the old data value, or <c>null</c> if not applicable.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.RelatedObjectKey">
+            <summary>
+            Returns the key of the changed entity.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IHistoryEvent.GetDisplay(QBM.CompositionApi.ITranslator,System.Boolean,VI.DB.Entities.ISession)">
+            <summary>
+            Returns a description of the data change event.
+            </summary>
+            <param name="translator"></param>
+            <param name="useLongDisplay"></param>
+            <param name="session"></param>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryEvent.LongDisplay">
+            <summary>
+            Returns the long display of the entity which was changed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryColumnEvent.Column">
+            <summary>
+            Returns the changed column.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IHistoryPeriod">
+            <summary>
+            Represents a time span, defining the start date and the end date for a state.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryPeriod.StartTime">
+            <summary>
+            Returns the start time for the period.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryPeriod.EndTime">
+            <summary>
+            Returns the end time for the period.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryPeriod.PeriodType">
+            <summary>
+            Returns an identifier for the period type.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IHistoryPeriod.Display">
+            <summary>
+            Returns a text describing the period.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IMembershipChangeActionProvider">
+            <summary>
+            Interface for classes that support deletion and creation of assignments (memberships).
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IMembershipChangeActionProvider.GetDeleteActionsAsync(VI.DB.IDbObjectKey,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the membership.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.IMembershipChangeActionProvider.GetCreateActionsAsync(VI.DB.IDbObjectKey,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to recreate the membership.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IRestoreUiAction">
+            <summary>
+            Represents an action to restore deleted data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IRestoreUiAction.DeletionUser">
+            <summary>
+            Returns the name of the user who deleted the data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IRestoreUiAction.DeletionTime">
+            <summary>
+            Returns the time of deletion.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.History.IRestoreUiAction.ObjectType">
+            <summary>
+            Returns the type of object to restore.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.ObjectCreationEvent">
+            <summary>
+            Represents the creation event of an object.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.ObjectRestore">
+            <summary>
+            Provides actions to restore a deleted object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.History.ObjectRestore.GetRestoreActionsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions that are required to restore a deleted object.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.RestoreUiActionWrapper">
+            <summary>
+            Adapter class to expose <see cref="T:QBM.CompositionApi.UiAction.IUiAction"/> objects as <see cref="T:QBM.CompositionApi.History.IRestoreUiAction"/> objects.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.IStateOverviewItem">
+            <summary>
+            A historical period characterized by a beginning and an end date.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.History.StateOverviewItem">
+            <summary>
+            Default implementation of a historical period characterized by a beginning and an end date.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.HyperView.IHyperViewDef">
+            <summary>
+            Definition of a HyperView, consisting of the shape definitions.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.HyperView.HyperViewDef.ShapeSeparator">
+            <summary>
+            This string is used as a property name to indicate a break between sections of a property list.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.HyperViewSelector.TryGetHyperViewDef(VI.DB.Entities.ISession,System.String)">
+            <summary>
+            Returns a HyperView definition specified by the name (<c>DialogTree.TreeNode</c>).
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.HyperViewSelector.TryGetHyperViewDefAsync(VI.DB.Entities.ISession,VI.DB.IDbObjectKey,System.Threading.CancellationToken)">
+            <summary>
+            Returns the HyperView definition that best matches the supplied entity.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.HyperView.IAbsPropertyShape">
+            <summary>
+            Interface for a HyperView property shape.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IAbsPropertyShape.SetPropertyListAsync(System.Collections.Generic.IEnumerable{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Sets the list of properties to show in this shape. The semantics of the <c>DialogTree.ElementColumns</c> column apply here.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.HyperView.IHyperViewControl">
+            <summary>
+            Interface for classes that render HyperViews according to a definition.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.HyperView.IHyperViewControl.EnableNavigation">
+            <summary>
+            Gets a flag indicating whether navigation is enabled within the HyperView.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.HyperView.IHyperViewControl.Entity">
+            <summary>
+            Returns the base entity of the HyperView.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IHyperViewControl.CreatePropertyShape(VI.DB.Entities.IEntity)">
+            <summary>
+            Creates a property shape.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IHyperViewControl.CreateCentralPropertyShape">
+            <summary>
+            Creates the central property shape for the base entity.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IHyperViewControl.CreateListShape">
+            <summary>
+            Creates a list shape.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IHyperViewControl.CreateSimpleShape">
+            <summary>
+            Creates a simple shape.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.HyperView.IHyperViewService.GetViewObjectsAsync(VI.DB.DbObjectKey,VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Given the object key, returns the related objects that are viewable
+            in a HyperView.
+            </summary>
+            <remarks>This method will resolve M:All objects and M:N objects (which typically
+            have no HyperView information associated with them) into their related objects.
+            The returned list will not contain the supplied key itself and may be empty.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.HyperView.IShape">
+            <summary>
+            Base interface for a HyperView shape.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.HyperView.IShape.Identifier">
+            <summary>
+            Returns a unique identifier for this shape.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.HyperView.IShape.Description">
+            <summary>
+            Returns a descriptive text for this shape.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.PluginConfiguration">
+            <summary>
+            This class provides the base functionality to extend the Composition API through plug-ins.
+            </summary>
+            <remarks>
+            <para>This class loads all DLL files in the application folder which match the <c>*.CompositionApi.dll</c> pattern.</para>
+            </remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.PluginConfiguration.Get``1">
+            <summary>
+            Returns all implementations for the provided type.
+            </summary>
+            <typeparam name="T">The export type to be obtained.</typeparam>
+        </member>
+        <member name="M:QBM.CompositionApi.PluginConfiguration.ForceExports``1(System.Collections.Generic.IReadOnlyList{``0})">
+            <summary>
+            For mocking purposes, use this method to force the Composition API to use a defined set of exports.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.IpSet.MathExtensions">
+            <summary>
+            Provides math extensions for <see cref="T:System.Byte"/> class.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.Not(System.Byte[])">
+            <summary>
+            Gets the bitwise NOT result.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <returns>The bitwise NOT result bytes.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.And(System.Byte[],System.Byte[])">
+            <summary>
+            Gets the bitwise AND result.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>The bitwise AND result bytes.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.Or(System.Byte[],System.Byte[])">
+            <summary>
+            Gets the bitwise OR result.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>The bitwise OR result bytes.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.GreaterThan(System.Byte[],System.Byte[])">
+            <summary>
+            Checks if the number from given bytes is greater than another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>True if it's greater; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.GreaterOrEqual(System.Byte[],System.Byte[])">
+            <summary>
+            Checks if the number from given bytes is greater or equals to another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>True if it's greater or equal; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.LessOrEqual(System.Byte[],System.Byte[])">
+            <summary>
+            Checks if the number from given bytes is less or equals to another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>True if it's less or equal; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.LessThan(System.Byte[],System.Byte[])">
+            <summary>
+            Checks if the number from given bytes is less than another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>True if it's less; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.EqualsTo(System.Byte[],System.Byte[])">
+            <summary>
+            Checks if the number that represented by the given bytes is equal to another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <returns>True if it's equal; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.MathExtensions.CompareTo(System.Byte[],System.Byte[],System.Nullable{System.Boolean})">
+            <summary>
+            Compares the number from bytes to another number.
+            </summary>
+            <param name="bytes">The bytes to be calculated.</param>
+            <param name="another">Another operant to be calculated.</param>
+            <param name="bigEndian">True to use big endian, false to use little endian, null to follow system setting.</param>
+            <returns>A positive integer if it's greater; Zero if they are equal and a negative integer if it's less than.</returns>
+        </member>
+        <member name="T:QBM.CompositionApi.IpSet.IpRange">
+            <summary>
+            Represents a range of consecutive IP addresses.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.IpSet.IpRange.Ipv4Length">
+            <summary>
+            Bitwise length for IP v4 address.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.IpSet.IpRange.Ipv6Length">
+            <summary>
+            Bitwise length for IP v6 address.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.#ctor(System.Net.IPAddress)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> class.
+            </summary>
+            <param name="single">The single address in the range.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.#ctor(System.Net.IPAddress,System.Net.IPAddress)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> class.
+            </summary>
+            <param name="begin">The beginning address.</param>
+            <param name="end">The ending address.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.#ctor(System.Net.IPAddress,System.Byte)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> class.
+            </summary>
+            <param name="baseAddress">The base address.</param>
+            <param name="netmask">The length of masked bits.</param>
+        </member>
+        <member name="P:QBM.CompositionApi.IpSet.IpRange.Begin">
+            <summary>
+            Gets the beginning address of the range.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.IpSet.IpRange.End">
+            <summary>
+            Gets the ending address of the range.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.GetBigInteger(System.Net.IPAddress)">
+            <summary>
+            Gets an unsigned <see cref="T:System.Numerics.BigInteger"/> from the specified <see cref="T:System.Net.IPAddress"/> object.
+            </summary>
+            <param name="address">The IP address.</param>
+            <returns>A <see cref="T:System.Numerics.BigInteger"/> that represents the given IP address.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.ParseOrDefault(System.String)">
+            <summary>
+            Converts the string representation of a IP address range to <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <example>
+            192.168.0.10 - 192.168.10.20
+            192.168.0.*
+            192.168.0.0/255.255.255.0
+            192.168.0.0/16
+            fe80::/10
+            </example>
+            <param name="s">A string containing a IP address range to convert.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.ParseOrDefault(System.String,System.String)">
+            <summary>
+            Converts the string representation of a IP address range to <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <param name="begin">The string for beginning address.</param>
+            <param name="end">The string for ending address.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.ParseOrDefault(System.String,System.Byte)">
+            <summary>
+            Converts the string representation of a IP address and netmask to <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <param name="ipBase">A string containing a base IP address.</param>
+            <param name="netmask">A byte to indicate the length of netmask.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.ParseOrDefault(System.String,System.Net.IPAddress)">
+            <summary>
+            Converts the string representation of a IP address and netmask to <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <param name="ipBase">A string containing a base IP address.</param>
+            <param name="netmask">A <see cref="T:System.Net.IPAddress"/> object to indicate the netmask.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.ParseOrDefault(System.Net.IPAddress,System.Byte)">
+            <summary>
+            Converts the string representation of a IP address and netmask to <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <param name="ipBase">An base IP address.</param>
+            <param name="netmask">A byte to indicate the length of netmask.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpRange"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.Contains(System.Net.IPAddress)">
+            <summary>
+            Checks whether the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> contains specified <see cref="T:System.Net.IPAddress"/>.
+            </summary>
+            <param name="ipAddress">The IP address to be checked.</param>
+            <returns>True if contains; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRange.Contains(QBM.CompositionApi.IpSet.IpRange)">
+            <summary>
+            Checks whether the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> contains another specified <see cref="T:QBM.CompositionApi.IpSet.IpRange"/>.
+            </summary>
+            <param name="subRange">The IP range to be checked.</param>
+            <returns>True if contains; otherwise false.</returns>
+        </member>
+        <member name="T:QBM.CompositionApi.IpSet.IpRangeExtensions">
+            <summary>
+            Provides extension method for <see cref="T:QBM.CompositionApi.IpSet.IpRange"/>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpRangeExtensions.Contains(QBM.CompositionApi.IpSet.IpRange,System.String)">
+            <summary>
+            Checks whether the <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> contains specified <see cref="T:System.Net.IPAddress"/>.
+            </summary>
+            <param name="ipRange">The <see cref="T:QBM.CompositionApi.IpSet.IpRange"/> object.</param>
+            <param name="ipAddress">The IP address to be checked.</param>
+            <returns>True if contains; otherwise false.</returns>
+        </member>
+        <member name="T:QBM.CompositionApi.IpSet.IpSet">
+            <summary>
+            Represents a set of IP addresses.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.#ctor(QBM.CompositionApi.IpSet.IpRange)">
+            <summary>
+            Initializes a new instance of the <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> class.
+            </summary>
+            <param name="range">The IP range.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.#ctor(System.Collections.Generic.IEnumerable{QBM.CompositionApi.IpSet.IpRange})">
+            <summary>
+            Initializes a new instance of the <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> class.
+            </summary>
+            <param name="ranges">The IP ranges.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.ParseOrDefault(System.String)">
+            <summary>
+            Converts the string representation of a group of IP address ranges to <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> equivalent.
+            IP address ranges should be separated by comma.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <example>
+            192.168.0.10 - 192.168.10.20,192.168.0.*,192.168.0.0/255.255.255.0,192.168.0.0/16,fe80::/10,192.168.0.0
+            </example>
+            <param name="s">A string containing a group of IP address ranges to convert.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpSet"/> equivalent if s was converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.ParseOrDefault(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Converts the string representations of a group of IP address ranges to <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> equivalent.
+            A not null return value indicates the conversion succeeded.
+            </summary>
+            <example>
+            192.168.0.10 - 192.168.10.20,192.168.0.*,192.168.0.0/255.255.255.0,192.168.0.0/16,fe80::/10,192.168.0.0
+            </example>
+            <param name="rangeStrings">Strings containing a group of IP address ranges to convert.</param>
+            <returns><see cref="T:QBM.CompositionApi.IpSet.IpSet"/> equivalent if strings were converted successfully; otherwise, null.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSet.Contains(System.Net.IPAddress)">
+            <summary>
+            Checks whether the <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> contains specified <see cref="T:System.Net.IPAddress"/>.
+            </summary>
+            <param name="ipAddress">The IP address to be checked.</param>
+            <returns>True if contains; otherwise false.</returns>
+        </member>
+        <member name="T:QBM.CompositionApi.IpSet.IpSetExtensions">
+            <summary>
+            Provides extension method for <see cref="T:QBM.CompositionApi.IpSet.IpSet"/>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.IpSet.IpSetExtensions.Contains(QBM.CompositionApi.IpSet.IpSet,System.String)">
+            <summary>
+            Checks whether the <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> contains specified <see cref="T:System.Net.IPAddress"/>.
+            </summary>
+            <param name="ipSet">The <see cref="T:QBM.CompositionApi.IpSet.IpSet"/> object.</param>
+            <param name="ipAddress">The IP address to be checked.</param>
+            <returns>True if contains; otherwise false.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.ITranslator.TranslateControlText(System.String)">
+            <summary>
+            Returns the translated text for the given key. If no translation exists in the database,
+            the translation supplied by the <see cref="P:VI.Base.LanguageManager.Instance" /> will be returned.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.TranslatorExtensions.TranslateControlText(QBM.CompositionApi.ITranslator,QBM.CompositionApi.TranslatableKey)">
+            <summary>
+            Returns the translated text for the given key using the <see cref="M:QBM.CompositionApi.ITranslator.TranslateControlText(System.String)"/> method.
+            If no translation exists in the database, the translation supplied by the <see cref="P:VI.Base.LanguageManager.Instance" /> will be returned.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.LoggingExtensions.LogWatchSection(VI.DB.Entities.ISession,System.String,System.String,System.Object[])">
+            <summary>
+            Combines a logging section and a stopwatch message.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.LoggingExtensions.LogWatchSection(NLog.LogSession,System.String,System.String,System.Object[])">
+            <summary>
+            Combines a logging section and a stopwatch message.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Password.IPasswordItem">
+            <summary>
+            Interface representing a writable password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.Display">
+            <summary>
+            Returns a description of the password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.Policy">
+            <summary>
+            Returns the password policy for this password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.Type">
+            <summary>
+            Returns the type of password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.PasswordLastSet">
+            <summary>
+            Returns the date when the password was last set.
+            </summary>
+            <remarks>This information is not available for all password types.</remarks>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.ColumnName">
+            <summary>
+            Returns the database column name where the password is stored.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.Key">
+            <summary>
+            Returns the object key of the object holding the password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.IsManagedCentrally">
+            <summary>
+            Returns a flag indicating whether this password is managed by the central password.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.Password.IPasswordItem.IsCentralPassword">
+            <summary>
+            Returns a flag indicating whether this password is the central password that manages other passwords.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Password.IPasswordItemProvider">
+            <summary>
+            Interface for classes that provide password items for a user.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.IPasswordItemProvider.GetPasswordItemsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns password items for the currently authenticated user.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.IPasswordItemProvider.GetPasswordItemsAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns password items for the specified user.
+            </summary>
+            <remarks>This method must only be called on a session of a helpdesk user.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.Password.PasswordItemCollector">
+            <summary>
+            Returns the list of password items defined for the current user.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.PasswordItemCollector.GetPasswordItemsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of password items defined for the current user.
+            </summary>
+            <remarks><para>To determine the password items, the <c>IPasswordItemProvider</c> interface is used.</para>
+            <para>The script <c>QER_PasswordWeb_IsAllowSet</c> is called to determine whether a specific password should
+            be exposed.</para>
+            <para>The script <c>QER_PasswordWeb_IsByCentralPwd</c> is called to determine whether a specific password is
+            managed by the central password.</para></remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.PasswordItemCollector.SetPasswordsAsync(System.Collections.Generic.IEnumerable{QBM.CompositionApi.Password.IPasswordItem},System.Security.SecureString,System.Threading.CancellationToken)">
+            <summary>
+            Sets a new password for the list of target items, and saves the changes to the database.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.PasswordItemType.Personal">
+            <summary>
+            Represents a personal account.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.PasswordItemType.Other">
+            <summary>
+            Represents a shared account, a service account, or other.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.WindowsAuthentication.GetWindowsIdentity(VI.DB.Entities.ISession,System.String,System.String)">
+            <summary>
+            Validates the credentials. This method uses the <c>TargetSystem\ADS\AuthenticationDomains</c> configuration setting to look up the domain.
+            </summary>
+            <remarks>This method raises an exception if there is no matching domain, or if the login failed using the supplied credentials.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.Password.WindowsAuthentication.ValidateCredentials(System.Collections.Generic.IEnumerable{System.String},System.String,System.String)">
+            <summary>
+            Validates the credentials using the supplied domain names.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_INTERACTIVE">
+            <summary>
+            This logon type is intended for users who will be interactively using the computer, such as a user being logged on
+            by a terminal server, remote shell, or similar process.
+            This logon type has the additional expense of caching logon information for disconnected operations;
+            therefore, it is inappropriate for some client/server applications,
+            such as a mail server.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_NETWORK" -->
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_BATCH">
+            <summary>
+            This logon type is intended for batch servers, where processes may be executing on behalf of a user without
+            their direct intervention. This type is also for higher performance servers that process many plaintext
+            authentication attempts at a time, such as mail or Web servers.
+            The LogonUser function does not cache credentials for this logon type.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_SERVICE">
+            <summary>
+            Indicates a service-type logon. The account provided must have the service privilege enabled.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_UNLOCK">
+            <summary>
+            This logon type is for GINA DLLs that log on users who will be interactively using the computer.
+            This logon type can generate a unique audit record that shows when the workstation was unlocked.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_NETWORK_CLEARTEXT">
+            <summary>
+            This logon type preserves the name and password in the authentication package, which allows the server to make
+            connections to other network servers while impersonating the client. A server can accept plaintext credentials
+            from a client, call LogonUser, verify that the user can access the system across the network, and still
+            communicate with other servers.
+            NOTE: Windows NT:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonType.LOGON32_LOGON_NEW_CREDENTIALS">
+            <summary>
+            This logon type allows the caller to clone its current token and specify new credentials for outbound connections.
+            The new logon session has the same local identifier but uses different credentials for other network connections.
+            NOTE: This logon type is supported only by the LOGON32_PROVIDER_WINNT50 logon provider.
+            NOTE: Windows NT:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.Password.WindowsAuthentication.LogonProvider.LOGON32_PROVIDER_DEFAULT">
+            <summary>
+            Use the standard logon provider for the system.
+            The default security provider is negotiate, unless you pass NULL for the domain name and the user name
+            is not in UPN format. In this case, the default provider is NTLM.
+            NOTE: Windows 2000/NT:   The default security provider is NTLM.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.PlugIns.CheckFeaturePlugin">
+            <summary>
+            Plugin to check for a specific program feature at login time.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.PlugIns.ModuleSetExtensions.FilterByModules(QBM.CompositionApi.PlugIns.IModuleSet,System.Collections.Generic.IEnumerable{System.Reflection.Assembly})">
+            <summary>
+            Filters the specified list of assemblies by their associated module.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.PlugIns.ModuleSetExtensions.IsIncludeAssembly(QBM.CompositionApi.PlugIns.IModuleSet,System.Reflection.Assembly)">
+            <summary>
+            Returns a flag indicating whether the specified assembly belongs to this module set.
+            </summary>
+            <remarks>The method looks for the <see cref="T:QBM.CompositionApi.PlugIns.ModuleAttribute"/> value of the assembly.
+            If no such attribute is found, the assembly is loaded.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.PlugIns.ISessionPlugIn">
+            <summary>
+            Represents functionality through session lifecycle plug-ins.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.PlugIns.LoadOrderAttribute">
+            <summary>
+            Specifies the ranking order of a plugin assembly so that it is loaded after
+            assemblies with a lower order.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.ProgressView.Process.GetProcessesAsync(VI.DB.Entities.ISession,VI.DB.IDbObjectKey,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of processes for the supplied object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.ProgressView.Process.GetProcessesAsync(VI.DB.Entities.ISession,VI.DB.Auth.IUserIdentity,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of processes initiated by the supplied user.
+            </summary>
+            <param name="userIdentity">User to obtain process information for.</param>
+        </member>
+        <member name="M:QBM.CompositionApi.ProgressView.Process.GetStepInfoAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves information about a step in the queue or in the history.
+            </summary>
+            <param name="session"></param>
+            <param name="uidJob"></param>
+            <param name="uidTree"></param>
+            <param name="ct"></param>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.E">
+            <summary>
+            Processing completed successfully
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.F">
+            <summary>
+            Processing ended in failure
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.N">
+            <summary>
+            Could no longer be reached during processing
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.D">
+            <summary>
+            Deferred for reprocessing
+            </summary> 
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.L">
+            <summary>
+            Processing frozen
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.P">
+            <summary>
+            In progress
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.ProgressView.ProcessState.G">
+            <summary>
+            Generated
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.QueueQuery.IQueueQueryProvider">
+            <summary>
+            Interface for provider classes that provide queue query selectors.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.QueueQuery.IQueueQueryProvider.GetSelectorsAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns a list of selectors that query the queue for objects related to the supplied base object.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="tableName">Table name of the baser object</param>
+            <param name="uid">Primary key of the base object</param>
+        </member>
+        <member name="T:QBM.CompositionApi.QueueQuery.QueueQuery">
+            <summary>
+            Class to query the DbQueue and job queue for tasks related to a base object.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.QueueQuery.QueueQuery.QueryAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns DbQueue and job queue entries for tasks related to a base object.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="tableName">Table name</param>
+            <param name="uid">Primary key</param>
+            <param name="ct">Supports cancellation</param>
+            <remarks>This class uses the <see cref="T:QBM.CompositionApi.QueueQuery.IQueueQueryProvider"/> interface to obtain queue query providers.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.QueueQuery.Selector">
+            <summary>
+            Represents an object selection on a specific table using a WHERE clause.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.SessionExtensions.GetLimitedSqlAsync(VI.DB.Entities.ISession,System.String,System.Collections.Generic.IEnumerable{VI.DB.Entities.QueryParameter},System.Threading.CancellationToken)">
+            <summary>
+            Runs a SQL statement.
+            </summary>
+            <param name="session">Database session.</param>
+            <param name="identLimitedSql">SQL statement identifier.</param>
+            <param name="parameters">Statement parameters.</param>
+            <param name="ct">Cancellation support.</param>
+            <returns>A data reader for the result.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.SessionExtensions.GetLimitedSqlScalarAsync``1(VI.DB.Entities.ISession,System.String,System.Collections.Generic.IEnumerable{VI.DB.Entities.QueryParameter},System.Threading.CancellationToken)">
+            <summary>
+            Runs the SQL statement and returns the first value of the first row.
+            </summary>
+            <typeparam name="T">Result type.</typeparam>
+            <param name="session">Database session</param>
+            <param name="identLimitedSql">SQL statement identifier</param>
+            <param name="parameters">Statement parameters.</param>
+            <param name="ct">Cancellation support</param>
+            <returns>The first value of the first row, or the default value for the type if no rows were returned.</returns>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Are_you_sure_that_you_would_like_to_stop_the_DBQueue">
+            <summary>
+            Are you sure that you would like to stop the DBQueue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Are_you_sure_that_you_would_like_to_stop_the_job_queue">
+            <summary>
+            Are you sure that you would like to stop the job queue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Assigned">
+            <summary>
+            Assigned 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Caches">
+            <summary>
+            Caches 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.CannotRestoreValue">
+            <summary>
+            CannotRestoreValue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Count_processing">
+            <summary>
+            Count processing 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Count_waiting">
+            <summary>
+            Count waiting 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Database_is_up_to_date">
+            <summary>
+            Database is up to date 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.DBQueue">
+            <summary>
+            DBQueue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.DBQueue_is_running">
+            <summary>
+            DBQueue is running 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Error_message">
+            <summary>
+            Error message 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Frozen_process_steps">
+            <summary>
+            Frozen process steps 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Go_to_the_first_page">
+            <summary>
+            Go to the first page 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Go_to_the_last_page">
+            <summary>
+            Go to the last page 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Job_queue_is_paused">
+            <summary>
+            Job queue is paused 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Job_queue_is_running">
+            <summary>
+            Job queue is running 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Processing_performance">
+            <summary>
+            Processing performance 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Last_checked">
+            <summary>
+            Last checked 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Maximize">
+            <summary>
+            Maximize 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Minimize">
+            <summary>
+            Minimize 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.No_DBQueue_entries_found_for_this_object">
+            <summary>
+            No DBQueue entries found for this object 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.RestoringObject">
+            <summary>
+            RestoringObject 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.RestoringHistoricalInsertData">
+            <summary>
+            RestoringHistoricalInsertData 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.ObjectDeletedPeriod">
+            <summary>
+            ObjectDeletedPeriod 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.PropertyHiddenText">
+            <summary>
+            PropertyHiddenText 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_BetweenXandY">
+            <summary>
+            Pwd_BetweenXandY 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_DenyElementProperties">
+            <summary>
+            Pwd_DenyElementProperties 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_MaxRepeatLen">
+            <summary>
+            Pwd_MaxRepeatLen 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_MaxRepeatCount">
+            <summary>
+            Pwd_MaxRepeatCount 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_SpecialChars">
+            <summary>
+            Pwd_SpecialChars 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_HistoryLen">
+            <summary>
+            Pwd_HistoryLen 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_CharClass_UpperCase">
+            <summary>
+            Pwd_CharClass_UpperCase 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_CharClass_LowerCase">
+            <summary>
+            Pwd_CharClass_LowerCase 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_CharClass_Number">
+            <summary>
+            Pwd_CharClass_Number 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_CharClass_SpecialChar">
+            <summary>
+            Pwd_CharClass_SpecialChar 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Pwd_CharClass_Letter">
+            <summary>
+            Pwd_CharClass_Letter 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Reactivate">
+            <summary>
+            Reactivate 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Processes">
+            <summary>
+            Processes 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Two_factor_authentication_is_not_enabled">
+            <summary>
+            Two-factor authentication is not enabled 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Show_message">
+            <summary>
+            Show message 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Start_DBQueue">
+            <summary>
+            Start DBQueue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Start_job_service">
+            <summary>
+            Start job service 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Stop_DBQueue">
+            <summary>
+            Stop DBQueue 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Stop_job_service">
+            <summary>
+            Stop job service 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.System_status">
+            <summary>
+            System status 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.The_database_must_be_compiled">
+            <summary>
+            The database must be compiled 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.The_DBQueue_is_empty">
+            <summary>
+            The DBQueue is empty 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.The_DBQueue_is_paused">
+            <summary>
+            The DBQueue is paused 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.There_are_no_frozen_process_steps">
+            <summary>
+            There are no frozen process steps 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.There_are_no_frozen_process_steps_on_the_server">
+            <summary>
+            There are no frozen process steps on the server 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Type_an_object_name">
+            <summary>
+            Type an object name 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.Type_an_object_name_to_view_pending_jobs">
+            <summary>
+            Type an object name to view pending jobs 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.WD_DisplayProperty">
+            <summary>
+            WD_DisplayProperty 
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.TranslatableKeys.WD_DisplayPropertyLong">
+            <summary>
+            WD_DisplayPropertyLong 
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.Translation.ITranslatableKeyProvider">
+            <summary>
+            Interface for translatable key providers.
+            </summary>
+            <remarks>This interface helps with managing translation keys for easier automatic collection.</remarks>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.ActionRunner">
+            <summary>
+            Default implementation of an <see cref="T:QBM.CompositionApi.UiAction.IUiActionContext"/> to execute a set of <see cref="T:QBM.CompositionApi.UiAction.IUiAction"/> actions.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ActionRunner.ErrorMode">
+            <summary>
+            Gets or sets the error handling mode.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.ActionRunner.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Runs all the actions.
+            </summary>
+            <returns>A list of actions that failed while executing.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.ActionRunner.RunAsync(System.Threading.CancellationToken)">
+            <summary>
+            Runs all the actions.
+            </summary>
+            <param name="ct">Supports cancellation.</param>
+            <returns>A list of all executed actions including their result state.</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.ActionRunner.RunAsync(System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Runs all the actions.
+            </summary>
+            <param name="withExceptions">If <c>true</c>, any exception will immediately be thrown. Otherwise, all exceptions are
+            collected in the result object.</param>
+            <param name="ct">Supports cancellation.</param>
+            <returns>A list of all executed actions including their result state.</returns>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ActionRunner.Session">
+            <summary>
+            Returns the associated database session.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.ErrorMode">
+            <summary>
+            Defines error handling for an action runner.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ErrorMode.CommitAlways">
+            <summary>
+            Always commit the unit of work, even if errors have occurred.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ErrorMode.CommitIfNoErrors">
+            <summary>
+            Do not commit the unit of work if any errors have occurred.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ErrorMode.NoCommit">
+            <summary>
+            Do not commit; only run the actions.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.DeleteAction">
+            <summary>
+            Marks an entity for deletion.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.DeleteDirectAssignment">
+            <summary>
+            Represents a restore action that consists of deleting a single object.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.DiffAction">
+            <summary>
+            Represents an action defined by a <see cref="T:VI.DB.Entities.Diff"/> object, which can handle INSERT and UPDATE operations.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.ImpossibleAction">
+            <summary>
+            Action item that cannot be executed for a specific reason.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.IUiAction">
+            <summary>
+            Represents a single action item.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.Display">
+            <summary>
+            Returns a descriptive text for the action.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.ObjectDisplay">
+            <summary>
+            Returns a descriptive text for the corresponding object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.CanExecute">
+            <summary>
+            Returns a value indicating whether the action can be executed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.IsActive">
+            <summary>
+            Gets or sets a flag indicating whether this action is selected to be executed.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.IUiAction.ExecuteAsync(QBM.CompositionApi.UiAction.IUiActionContext,System.Threading.CancellationToken)">
+            <summary>
+            Executes the action.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.IUiAction.ToSerializableActionAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Creates a serializable instance of this action.
+            </summary>
+            <remarks>Classes are not required to implement this method, and may throw a <see cref="T:System.NotImplementedException"/>.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.IUiAction.CleanUpAsync(QBM.CompositionApi.UiAction.IUiActionContext,QBM.CompositionApi.UiAction.ActionState,System.Threading.CancellationToken)">
+            <summary>
+            Performs any clean-up tasks after all actions in a unit of work have been executed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.SortOrder">
+            <summary>
+            Returns a sorting number that is used to execute the actions in the correct order.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiAction.PutUnitOfWorkBefore">
+            <summary>
+            Returns a value indicating whether the actions in the queue should be put in a unit of work
+            before this action is executed.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.IUiActionContext">
+            <summary>
+            Defines a context in which a set of <see cref="T:QBM.CompositionApi.UiAction.IUiAction"/> objects are executed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IUiActionContext.Session">
+            <summary>
+            Returns the associated database session.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.IXmlUiAction">
+            <summary>
+            Interface for actions that can be serialized and represented as an <see cref="T:QBM.CompositionApi.UiAction.XmlUiActionGroup"/>.
+            </summary>
+            <remarks>By convention, <c>IXmlUiAction</c> objects must be definable without relying on specific
+            entities.</remarks>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IXmlUiAction.IsActive">
+            <summary>
+            Gets or sets a flag indicating whether this action is selected to be executed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IXmlUiAction.IsCompleted">
+            <summary>
+            Returns a flag indicating if the action has been processed.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IXmlUiAction.IsFaulted">
+            <summary>
+            Returns a flag indicating if the action did not complete successfully.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IXmlUiAction.SetFrozenOnError">
+            <summary>
+            Returns a flag indicating if the processing engine should set the "Frozen"
+            status if any errors occur while executing this action.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.IXmlUiAction.UserData">
+            <summary>
+            Storage of user-specific data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UiAction.IXmlUiAction.ToXmlAsync(VI.DB.Entities.ISession,System.Xml.XmlTextWriter,System.Threading.CancellationToken)">
+            <summary>
+            Writes a representation of this action to a target writer.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.MandatoryUiAction">
+            <summary>
+            Wraps an IUiAction that cannot be disabled.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.ResultInfo">
+            <summary>
+            Represents a serializable summary of an action result.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ResultInfo.Display">
+            <summary>
+            Returns a descriptive text for the action.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ResultInfo.ObjectDisplay">
+            <summary>
+            Returns a descriptive text for the corresponding object.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ResultInfo.State">
+            <summary>
+            Gets or sets the result state.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.ResultInfo.ExceptionText">
+            <summary>
+            Gets or sets the exception message, if any exception occurred during execution.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.UiActionResult">
+            <summary>
+            Represents the result of an action execution.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.UiActionResult.Action">
+            <summary>
+            Gets or sets the action.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.UiActionResult.State">
+            <summary>
+            Gets or sets the result state.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UiAction.UiActionResult.Exception">
+            <summary>
+            Gets or sets the exception, if any exception occurred during execution.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.ActionState">
+            <summary>
+            Represents the state of an action execution.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ActionState.NotExecuted">
+            <summary>
+            The action was not executed.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ActionState.Succeeded">
+            <summary>
+            The action was successfully executed and committed.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ActionState.RolledBack">
+            <summary>
+            The action was successfully executed, but rolled back.
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UiAction.ActionState.Failed">
+            <summary>
+            The action failed.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UiAction.UiActionWrapper">
+            <summary>
+            Wrapper class to modify specific information of an <see cref="T:QBM.CompositionApi.UiAction.IUiAction"/>.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.IBookmarkProvider">
+            <summary>
+            Interface representing a provider for bookmarks.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IBookmarkProvider.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a bookmark from the list of bookmarks.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IBookmarkProvider.GetAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns the list stored bookmarks.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IBookmarkProvider.PutAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Adds a bookmark to the list of bookmarks.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.IBookmark">
+            <summary>
+            Represents a single bookmark.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.IBookmark.CssClass">
+            <summary>
+            Returns a CSS class name to use when displaying this bookmark.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.IBookmark.Display">
+            <summary>
+            Returns a descriptive text for his bookmark.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.IBookmark.Uid">
+            <summary>
+            Returns a unique identifier for this bookmark.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.IBookmark.Url">
+            <summary>
+            Returns the URL which is called when selecting the bookmark.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.BookmarkProvider">
+            <summary>
+            Bookmark Repository
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.BookmarkProvider.#ctor(QBM.CompositionApi.UserConfig.IUserConfiguration)">
+            <summary>
+            Creates a new <c>BookmarkProvider</c>.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.BookmarkProvider.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.BookmarkProvider.PutAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.Bookmark">
+            <summary>
+            Default implementation of the <c>IBookmark</c> interface.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.Bookmark.CssClass">
+            <inheritdoc />
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.Bookmark.Display">
+            <inheritdoc />
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.Bookmark.Uid">
+            <inheritdoc />
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.Bookmark.Url">
+            <inheritdoc />
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.ConfigurationProvider`1">
+             <summary>
+             Abstract configuration provider class.
+             
+             A ConfigurationProvider is responsible for reading and writing a specific configuration type
+             such as FilterSettings, MruList, ChartSettings and AdditionalColumns.
+            
+             </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.ProductName">
+            <summary>
+            Gets or sets the product name.
+            </summary>
+            <remarks>If this property is null, then the static fallback value (<see cref="P:VI.Base.AppData.Product"/>) will be used.</remarks>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.#ctor(QBM.CompositionApi.UserConfig.IUserConfiguration,System.String)">
+            <summary>
+            Creates a new configuration provider.
+            </summary>
+            <param name="userConfiguration"></param>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.UserConfiguration">
+            <summary>
+            Gets or sets the userconfiguration.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.IsEnabled">
+            <summary>
+            Returns true if the <c>UserConfiguration</c> is enabled.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.GetAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get first user specific settings by settings name
+            </summary>
+            <typeparam name="T">Type of setting</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.GetAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get all user specific settings by settings name
+            </summary>
+            <typeparam name="T">Type of setting</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationProvider`1.PutAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Put one user specific setting
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="configSetting"></param>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.ConfigurationSetting">
+            <summary>
+            Represents per-user configuration settings.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.ConfigurationSetting.#ctor(System.String)">
+            <summary>
+            Creates a configuration setting for the given key.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ConfigurationSetting.Key">
+            <summary>
+            Key value of the configuration setting.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ConfigurationSetting.Value">
+            <summary>
+            Configuration setting. This string must be a valid JSON string.
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.DbUserConfiguration">
+            <summary>
+            Userconfiguration data stored to Database
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.DbUserConfiguration.LoadAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Load configuration objects from database into a byte array
+            </summary>
+            <returns>ConfigurationData as byte array</returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.DbUserConfiguration.SaveAsync(System.String,System.Collections.Generic.IEnumerable{QBM.CompositionApi.UserConfig.ConfigurationSetting},System.Threading.CancellationToken)">
+            <summary>
+            Save ConfigurationObjects to database
+            </summary>
+            <param name="configurationObjects">The configuration objects to save</param>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.IMruListProvider">
+            <summary>
+            Interface for classes handling MRU (Most recently used) lists
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IMruListProvider.GetAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the MruObject for the given table name
+            If the MruObject does not exist a new object is 
+            returned
+            </summary>
+            <param name="tableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IMruListProvider.GetAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get all MruObjects for all tables
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IMruListProvider.PutAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Add as a new MruList object to the settings
+            If the object allready exist the object queue 
+            is left at its present state.
+            Queue only holds MruListProvider.QueueCapacity objects.
+            If more are added they are dequeued fifo
+            </summary>
+            <param name="table"></param>
+            <param name="objectKey"></param>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.IUserConfiguration">
+            <summary>
+            Interface to load and save per-user configuration data.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.IUserConfiguration.IsEnabled">
+            <summary>
+            Returns a value indicating whether this object supports loading and saving of per-user configuration data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IUserConfiguration.LoadAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Loads the user configuration and returns it as list of configuration data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IUserConfiguration.LoadAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Loads the user configurations for all products and returns it as product gropued list of configuration data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.IUserConfiguration.SaveAsync(System.String,System.Collections.Generic.IEnumerable{QBM.CompositionApi.UserConfig.ConfigurationSetting},System.Threading.CancellationToken)">
+            <summary>
+            Persist the configuration data.
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.LastLookupDateProvider.GetAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the date of the last lookup.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.MruGroup">
+            <summary>
+            Mru group. Mru's are grouped by table name.
+            Mru object keys are stored in queue, fifo
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.MruGroup.#ctor">
+            <summary>
+            Create a new MruGroup
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.MruGroup.ObjectKeys">
+            <summary>
+            List of object keys
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.MruGroup.Table">
+            <summary>
+            The table the MRU list applies to
+            </summary>
+        </member>
+        <member name="T:QBM.CompositionApi.UserConfig.MruListProvider">
+            <summary>
+            Mru Object (Most Resently Used) Repository
+            Mru object keys are stored in queue FIFO
+            </summary>
+        </member>
+        <member name="F:QBM.CompositionApi.UserConfig.MruListProvider.QueueCapacity">
+            <summary>
+            Maximum queue capacity
+            </summary>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.MruListProvider.#ctor(QBM.CompositionApi.UserConfig.IUserConfiguration)">
+            <summary>
+            Create a new <c>MruListProvider</c>.
+            </summary>
+            <param name="userConfiguration"></param>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.MruListProvider.GetAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the MruObject for the given table name
+            If the MruObject does not exist a new object is 
+            returned
+            </summary>
+            <param name="tableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.MruListProvider.QBM#CompositionApi#UserConfig#IMruListProvider#GetAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get all MruObjects for all tables
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:QBM.CompositionApi.UserConfig.MruListProvider.PutAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Add as a new MruList object to the settings
+            If the object allready exist the object queue 
+            is left at its present state.
+            Queue only holds MruListProvider.QueueCapacity objects.
+            If more are added they are dequeued fifo
+            </summary>
+            <param name="table"></param>
+            <param name="objectKey"></param>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ProfileSettings.UseProfileLanguage">
+            <summary>
+            If this property is set, the application will use the language from the user's profile.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ProfileSettings.TimeZoneId">
+            <summary>
+            Identifier of the user's preferred time zone.
+            </summary>
+        </member>
+        <member name="P:QBM.CompositionApi.UserConfig.ProfileSettings.PreferredAppThemes">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameLong">
+            <summary>
+            Long name of the company
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameShort">
+            <summary>
+            Short name of the company
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameTechnical">
+            <summary>
+            Company name for registry keys, directories, etc.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_Copyright">
+            <summary>
+            The copyright string.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_Copyright_Warning">
+            <summary>
+            The copy right warning string.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_SupportMail">
+            <summary>
+            The support email address.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_ProductNameFull">
+            <summary>
+            Full name for History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_ProductNameShort">
+            <summary>
+            Short name for History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_TechnicalName">
+            <summary>
+            Technical name History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_ProductNameFull">
+            <summary>
+            Full name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_ProductNameShort">
+            <summary>
+            Short name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_SuiteName">
+            <summary>
+            Suite Name
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_TechnicalName">
+            <summary>
+            Technical name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_Abbreviation">
+            <summary>
+            Product abbreviation
+            </summary>
+        </member>
+    </members>
+</doc>

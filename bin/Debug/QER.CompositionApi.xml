@@ -1,0 +1,1048 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QER.CompositionApi</name>
+    </assembly>
+    <members>
+        <member name="M:QER.CompositionApi.Assignment.AssignmentKeyHelper.GetTargetForAssignmentAsync(VI.DB.Entities.ISession,VI.DB.DbObjectKey,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Obtains the target object key for an assignment, given an assignment key and a source object.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.EntitlementConfig.IsCrossPersonCheck">
+            <summary>
+            Checks all related identities.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.EntitlementConfig.UidPersonTriggered">
+            <summary>
+            Gets or sets the identity who initiated the process.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.EntitlementRemoveAction.UidPerson">
+            <summary>
+            Returns the UID_Person of the employee losing an entitlement.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.EntitlementRemoveAction.KeyOrigin">
+            <summary>
+            The key of the entitlement that is to be removed, and that created this action. This is not necessarily
+            equal to the key of the object that this action will delete.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Assignment.IEntitlementContext.GetRemoveActionsAsync(VI.DB.DbObjectKey,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the entitlement assignment.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Assignment.IEntitlementEval">
+            <summary>
+            Interface for classes that handle <c>QEREntitlementSource</c> results.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Assignment.IEntitlementEval.TryGetRemoveActionsAsync(QER.CompositionApi.Assignment.IEntitlementContext,System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the entitlement.
+            </summary>
+            <param name="context">The entitlement evaluation context.</param>
+            <param name="objectKey">The input key for the <c>QER_FTEntitlementSourceWhy</c> evaluation.</param>
+            <param name="keyReason1">The first <c>QER_FTEntitlementSourceWhy</c> result key.</param>
+            <param name="keyReason2">The second <c>QER_FTEntitlementSourceWhy</c> result key.</param>
+            <param name="ct">Supports cancellation</param>
+            <returns>A list of removal actions. If this object cannot process the input, returns a failed <see cref="T:VI.Base.TryResult"/>.</returns>
+        </member>
+        <member name="M:QER.CompositionApi.Assignment.IEntitlementEval.GetEntitlementTypesExcludeAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a list of object types to be ignored. These object types should not be evaluated further
+            when they are part of a <c>QEREntitlementSource</c> result.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="ct">Supports cancellation</param>
+        </member>
+        <member name="M:QER.CompositionApi.Assignment.IEntitlementRemovePostPlugin.ProcessRemoveActionsAsync(System.Collections.Generic.IReadOnlyList{QER.CompositionApi.Assignment.EntitlementRemoveAction},VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Allows for post-processing a list of removal actions to combine any redundant
+            actions.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Assignment.PersonAssignment">
+            <summary>
+            Provides methods to handle assignments of employees to entitlements.
+            </summary>
+            <remarks>This class uses all exported implementors of the <see cref="T:QER.CompositionApi.Assignment.IEntitlementEval"/> interface.</remarks>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.PersonAssignment.UidQerJustification">
+            <summary>
+            Gets or sets the UID of the justification text used to handle requests.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Assignment.PersonAssignment.GetRemoveActionsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the assignment.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Assignment.SourceNode">
+            <summary>
+            Represents a node in the source detective tree.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.SourceNode.ObjectDisplay">
+            <summary>
+            Display of the source object.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.SourceNode.ObjectType">
+            <summary>
+            Type of the source object.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.SourceNode.IsPrimaryAssignment">
+            <summary>
+            Gets or sets a flag indicating whether this is a primary assignment to the employee.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Assignment.SourceNode.LastPrimaryAssignmentChange">
+            <summary>
+            If this a primary assignment; contains information about the most recent change of
+            the primary assignment.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.#ctor(QER.OAuthAuthentifier.IdentityConfig)">
+            <summary>
+            Creates a new Webauthn 2FA adapter for RSTS.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.BuildAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Builds a 2FA adapter using the configuration for the specified web application.
+            </summary>
+            <param name="session">Database connection</param>
+            <param name="appUrl">Base URL of the consuming web application</param>
+            <param name="ct">Supports cancellation</param>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.VerifyCodeAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>Verifies that the supplied OAuth2 code contains a claim for successful
+            two-factor authentication.</summary>
+            <param name="session">Database connection</param>
+            <param name="code">OAuth2 code supplied by RSTS</param>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.VerifyCodeAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>Verifies that the supplied OAuth2 code contains a claim for successful
+            two-factor authentication.</summary>
+            <param name="session">Database connection</param>
+            <param name="code">OAuth2 code supplied by RSTS</param>
+            <param name="secondaryProviderId">Identifier of the secondary provider in RSTS, for example <c>fido</c>.</param>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.BuildSecondaryAuthUrl(System.String,System.String)">
+            <summary>
+            Builds the URL of a secondary factor login page.
+            </summary>
+            <param name="redirectUrl">URL to redirect the browser after authentication.</param>
+            <param name="secondaryProviderId">Identifier of the secondary provider in RSTS, for example <c>fido</c>.</param>
+            <returns></returns>
+        </member>
+        <member name="M:QER.CompositionApi.Auth.Rsts2Fa.BuildNewKeyUrl(VI.DB.Entities.ISession,System.String,System.String)">
+            <summary>Builds the URL of the RSTS page to register a new security key.</summary>
+            <param name="session">Database connection</param>
+            <param name="returnUrl">URL to redirect the browser after registration.</param>
+            <param name="secondaryProviderId">Identifier of the secondary provider in RSTS, for example <c>fido</c>.</param>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveDirect">
+            <summary>
+            Remove direct group membership.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveDirectRole">
+            <summary>
+            Remove indirect membership by direct business role assignment.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveRequestedRole">
+            <summary>
+            Remove indirect membership by requested business role assignment.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveDelegatedRole">
+            <summary>
+            Remove indirect membership by delegated business role assignment.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveRequested">
+            <summary>
+            Remove requested group membership.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemovePrimaryRole">
+            <summary>
+            Remove indirect membership by person's primary role assignments.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveSystemRole">
+            <summary>
+            Remove indirect membership by system role assignment.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.AutoRemoval.AutoRemovalType.RemoveDynamicRole">
+            <summary>
+            Remove indirect membership by dynamic role assignment.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.AutoRemoval.IAutoRemovalConfig.GetAutoRemovalType(System.String)">
+            <summary>
+            Returns the combination of all types of auto-removal that should be performed
+            for the given type of object.
+            </summary>
+            <param name="identifier">Type of entitlement. This value can be any one of the config parameter
+            names under <c>QER\Attestation\AutoRemovalScope</c>.</param>
+        </member>
+        <member name="P:QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment.KeyOrigin">
+            <summary>
+            The key of the entitlement which is to be removed. This must not be an assignment key.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment.UidPerson">
+            <summary>
+            Returns the UID of the person whose entitlements are being removed.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment.UidPersonTriggered">
+            <summary>
+            Returns the UID of the person who triggered the action. This value may be <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment.IsForPreview">
+            <summary>
+            Indicates that this auto-removal analysis is running in preview mode.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.AutoRemoval.IAutoRemovalPlugIn">
+            <summary>
+            Represents a handler that returns auto-removal actions for objects of a specific type.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.AutoRemoval.IAutoRemovalPlugIn.TableNames">
+            <summary>
+            Returns the object names that this plug-in can process.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.AutoRemoval.IAutoRemovalPlugIn.GetActionsAsync(QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the specified entitlement.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.AutoRemoval.IEntitlementRemoveActionProvider.TryGetRemoveActionsAsync(QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment,VI.DB.Entities.IEntity,System.String,System.String,System.String,QER.CompositionApi.AutoRemoval.AutoRemovalType,VI.DB.DbObjectKey,System.Threading.CancellationToken)">
+            <remarks>If the default logic should apply, or if this plug-in does not handle
+            objects of this type, this method should return a <see cref="P:VI.Base.TryResult`1.Failed"/>.
+            If no plug-in returns any actions, the default action will apply.</remarks>
+        </member>
+        <member name="M:QER.CompositionApi.AutoRemoval.IEntitlementRemoveActionProvider.TryGetRemoveDirectActionAsync(VI.DB.DbObjectKey,System.String,QER.CompositionApi.AutoRemoval.IAutoRemovalEnvironment,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to remove the specified direct assignment.
+            </summary>
+            <remarks>If the direct assignment can simply be deleted, or this plug-in does not handle
+            objects of this type, this method should return a <see cref="P:VI.Base.TryResult`1.Failed"/>.</remarks>
+        </member>
+        <member name="T:QER.CompositionApi.AutoRemoval.PwoRemoveMembershipPlugIn">
+            <summary>
+            Removes requested memberships.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.BaseTreeHierarchy.RootWhereClause">
+            <summary>
+            Gets or sets the WHERE clause for root elements. If this is not set, the root elements are all
+            elements whose <see cref="P:QER.CompositionApi.BaseTreeHierarchy.ParentConnectColumn"/> value is <c>null</c>.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Cache.IAccProductCache">
+            <summary>
+            Cache for contents of the tables AccProduct, AccProductDependencies, AccProductGroup, AccProductParameter and
+            AccProductParamCategory.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.IAccProductUsageCache.GetAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Returns usage information for the specified list of service items.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.IEntitlementSourceCache.GetAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of tables that support assignment analysis.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.IShopCache.GetAccProductGroupsAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of available service categories that contain service items for one of the
+            specified shops, sorted by their display.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.IShopCache.GetProductsByShopsAndGroupAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of requestable AccProducts filtered by the specified list of shops, sorted
+            by their display.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.IShopCache.GetShopsAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Returns the shops that at least one of the specified identities is a member of.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Cache.ShopCache.GetAccProductsFilteredAsync(VI.DB.Entities.ISession,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String},System.Threading.CancellationToken)">
+            <summary>
+            Returns the list of requestable AccProducts filtered by the specified list of shops.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.AccProductUsageCache">
+            <summary>
+            Caches data from the table <c>QERAccProductUsage</c>.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.BaseTreeAssignCache">
+            <summary>
+            Caches data from the table <c>BaseTreeAssign</c>.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.AccProductGroupHierarchyProvider.RootWhereClause">
+            <summary>
+            Gets or sets the WHERE clause for root elements. If this is not set, the root elements are all
+            elements whose <see cref="P:QER.CompositionApi.ITShop.AccProductGroupHierarchyProvider.ParentConnectColumn"/> value is <c>null</c>.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.BaseTreeToShop">
+            <summary>
+            Provides methods to add a membership assignment resource for a <c>BaseTree</c> object to the IT shop.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.BaseTreeToShop.GetUidAccProductAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the UID of the service item for the assignment resource for the object, or <c>null</c> if one does not exist.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.BaseTreeToShop.GetActionsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to add a membership assignment resource to the IT shop.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="ct">Support for task cancellation</param>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.BaseTreeToShop.IsAssignedToShopAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a value indicating whether the object has already been added to the IT shop.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.BaseTreeToShop.CanAddToShopAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a value indicating whether memberships can be added to the IT shop for this object.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.CartCheckResult">
+            <summary>
+            Represents the result of a shopping cart check.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.CartCheckResult.Duplicates">
+            <summary>
+            Returns the UIDs of shopping cart items that represent duplicates. The values are organized by mutually exclusive groups.
+            </summary>
+            <remarks>This property is kept for backwards compatibility.</remarks>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.CartCheckResult.Items">
+            <summary>
+            Returns the check results for individual items.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.CartSerializationTypes.GetTypes">
+            <summary>
+            Declares all serializable types required for shopping cart checks.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.CartItemCheckResult.UidPersonWantsOrg">
+            <summary>
+            The UID of the request that was created from this cart item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.MissingMandatory">
+            <summary>
+            Returns the list of missing requests for mandatory service items.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.IsExistingAssignment">
+            <summary>
+            Gets or sets a flag indicating whether this item creates a request for an assignment that already exists.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.DuplicateWith">
+            <summary>
+            Gets or sets the list of shopping cart item UIDs that are a duplicate of this item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.IsDuplicate">
+            <summary>
+            Gets or sets a flag indicating whether this request is a duplicate within the shopping cart.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.IsTimeConflict">
+            <summary>
+            Gets or sets a flag indicating that this item is not requestable because of existing assignment periods.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.Exclusions">
+            <summary>
+            Returns information about shopping cart items causing exclusions.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.HasExistingPwo">
+            <summary>
+            Gets or sets a flag indicating that this item is not requestable because an active request exists.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.QerCartItemCheckResult.UidQerTermsOfUse">
+            <summary>
+            Returns the identifier of the terms of use that the requester must agree to, if any. 
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.ITShop.Check.CartArgsType.BeforeSave">
+            <summary>
+            Called before a cart item is saved
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.ICartItemCheck.Id">
+            <summary>
+            Identifier for this check.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.ICartItemCheck.Status">
+            <summary>
+            Check result status.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.ICartItemCheck.Title">
+            <summary>
+            Reference to a multi-language key describing this check.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.ICartItemCheck.ResultText">
+            <summary>
+            Optional reference to a multi-language key describing the result of this check.
+            </summary>
+            <remarks>The text may reference the service item (0) and recipient (1) as string parameters.</remarks>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.ICartItemCheck.Detail">
+            <summary>
+            Optional details about the check result
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.RequestableCheck.RequestableCheckDetail.IsTimeConflict">
+            <summary>
+            Returns true if the request cannot be submitted because the request validity
+            period is in conflict with another request.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Check.RequestableCheck.RequestableCheckDetail.ExistingPwo">
+            <summary>
+            Returns the other requests for the same product and the same recipient, which
+            can prevent this request from being submitted.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.Component.IRequestBaseLogic.CommitAsync(VI.DB.Entities.IUnitOfWork,System.Threading.CancellationToken)">
+            <summary>
+            Called before a request item is committed, so that component-specific changes can be committed in the
+            same transaction.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Component.IShopComponent.DisplayType">
+            <summary>
+            Returns an identifier that clients can evaluate to distinguish different
+            types of requests.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.ExclusionResult">
+            <summary>
+            Represents information about a shopping cart item that violates an exclusion rule.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ExclusionResult.UidShoppingCartItem">
+            <summary>
+            UID of the shopping cart item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ExclusionResult.ObjectKeyExcluded">
+            <summary>
+            Object key of the object that causes the exclusion.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ExclusionResult.ObjectDisplayExcluded">
+            <summary>
+            Display of the object that causes the exclusion.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ExistingPwo.OrderState">
+            <summary>
+            Translated status of the request
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.ICartItemCheckResult">
+            <summary>
+            Abstract interface for cart item check results.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ICartItemCheckResult.HasWarnings">
+            <summary>
+            Returns a flag indicating whether this check generated warnings. Warnings do not prevent a shopping cart from being submitted.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ICartItemCheckResult.HasErrors">
+            <summary>
+            Returns a flag indicating whether this check generated errors. A shopping cart cannot be submitted if any position contains errors.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ICartItemCheckResult.CanCommitSilently">
+            <summary>
+            Returns a flag indicating whether this item can be committed without user interaction, assuming that the <see cref="P:QER.CompositionApi.ITShop.ICartItemCheckResult.HasErrors"/> flag is not set.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.ICartPostSubmitCheck">
+            <summary>
+            Interface for classes that run shopping cart checks after the cart has been submitted, using an open transaction.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.IExclusionCheck">
+            <summary>
+            Interface for classes that implement exclusion checks for shopping cart items.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.IObjectToShopProvider.IsValidTableAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a flag indicating whether this class can process entitlements of the supplied type.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.IObjectToShopProvider.IsValidPersonAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a flag indicating whether the authenticated user can perform this action.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.IObjectToShopProvider.AccProductName">
+            <summary>
+            Gets or sets the name to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.IObjectToShopProvider.UidAccProductGroup">
+            <summary>
+            Gets or sets the UID of the service category to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.IObjectToShopProvider.UidPwoDecisionMethod">
+            <summary>
+            Gets or sets the UID of the decision method to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.IObjectToShopProvider.UidItShopOrgBoard">
+            <summary>
+            Gets or sets the UID of the IT shop shelf which the membership should be added to.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.IObjectToShopProvider.UidQerResourceType">
+            <summary>
+            Gets or sets a resource type to use when adding new a assignment resource.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.MandatoryAccProductCheckResult">
+            <summary>
+            Provides information about a shopping cart item that is missing a request for a mandatory service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.MandatoryAccProductCheckResult.UidShoppingCartItem">
+            <summary>
+            UID of the shopping cart item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.MandatoryAccProductCheckResult.UidAccProductRelated">
+            <summary>
+            UID of the mandatory service item that is missing in the request.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.MandatoryAccProductCheckResult.DisplayAccProductRelated">
+            <summary>
+            Display of the mandatory service item that is missing in the request.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.ObjectToShop">
+            <summary>
+            Provides functionality to add an entitlement to the IT shop.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShop.UidQerResourceType">
+            <summary>
+            Gets or sets a resource type to use when adding new a assignment resource.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShop.AccProductName">
+            <summary>
+            Gets or sets the name to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShop.UidAccProductGroup">
+            <summary>
+            Gets or sets the UID of the service category to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShop.UidPwoDecisionMethod">
+            <summary>
+            Gets or sets the UID of the decision method to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShop.UidItShopOrgBoard">
+            <summary>
+            Gets or sets the UID of the IT shop shelf which the membership should be added to.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.ObjectToShop.GetActionsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to add the entitlement to the IT shop.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="ct">Supports cancellation</param>
+            <remarks>This class uses exported classes that implement the <see cref="T:QER.CompositionApi.ITShop.IObjectToShopPreProvider"/> and <see cref="T:QER.CompositionApi.ITShop.IObjectToShopProvider"/> interfaces.</remarks>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.ObjectToShopBase">
+            <summary>
+            Abstract class that provides base functionality to add memberships in business objects to the IT shop.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.UidQerResourceType">
+            <summary>
+            Gets or sets a resource type to use when adding new a assignment resource.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.TableName">
+            <summary>
+            Returns the table name of the business object.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.Uid">
+            <summary>
+            Returns the UID of the business object.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.AccProductName">
+            <summary>
+            Gets or sets the name to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.UidAccProductGroup">
+            <summary>
+            Gets or sets the UID of the service category to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.UidPwoDecisionMethod">
+            <summary>
+            Gets or sets the UID of the decision method to use when adding a new service item.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.UidItShopOrgBoard">
+            <summary>
+            Gets or sets the UID of the IT shop shelf which the membership should be added to.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ObjectToShopBase.UidPerson">
+            <summary>
+            Gets or sets the UID of the owner of the new service item.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.Parameter.AccProductParameterSetProvider">
+            <summary>
+            Parent set provider that takes the parameter category on the service item. If there is none defined,
+            it uses the category assigned on the service item's service category.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.Parameter.ColumnBasedParameterSetProvider">
+            <summary>
+            Parent set provider that takes the object directly referenced by a foreign-key value on the entity.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.ITShop.Parameter.RequestParameterContext.Request">
+            <summary>
+            Parameters are processed before submitting a request.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.ITShop.Parameter.RequestParameterContext.Approval">
+            <summary>
+            Parameters are processed by an approver.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.ITShop.Parameter.RequestParameterContext.History">
+            <summary>
+            Parameters are displayed in a read-only context.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.ITShop.Parameter.StructureParameterAdapter">
+            <summary>
+            Structure parameters represent parameters that are implicitly made mandatory by the effective
+            approval workflow.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Recommendation.RecommendationItem.Id">
+            <summary>
+            Identifier for this check.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Recommendation.RecommendationItem.Title">
+            <summary>
+            Multi-language key describing this recommendation.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.Recommendation.RecommendationItem.DetailText">
+            <summary>
+            Optional multi-language key describing the result of this recommendation.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ShoppingCartCheck.EnableExclusionCheck">
+            <summary>
+            Gets or sets a flag indicating whether exclusion checks should be run.
+            </summary>
+            <remarks>The exclusion checks uses classes that implement the <see cref="T:QER.CompositionApi.ITShop.IExclusionCheck"/> interface.</remarks>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ShoppingCartCheck.AllowMissingMandatory">
+            <summary>
+            Gets or sets a value indicating whether requests with missing mandatory products are allowed, if the
+            missing products are already assigned.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ShoppingCartCheckConfig.EnableDuplicateCheck">
+            <summary>
+            Gets or sets a flag indicating whether checks for duplicate cart items should be run.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ShoppingCartCheckConfig.EnableExclusionCheck">
+            <summary>
+            Gets or sets a flag indicating whether exclusion checks should be run.
+            </summary>
+            <remarks>The exclusion checks uses classes that implement the <see cref="T:QER.CompositionApi.ITShop.IExclusionCheck"/> interface.</remarks>
+        </member>
+        <member name="P:QER.CompositionApi.ITShop.ShoppingCartCheckConfig.AllowMissingMandatory">
+            <summary>
+            Gets or sets a value indicating whether requests with missing mandatory products are allowed, if the
+            missing products are already assigned.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.ShoppingCartSubmit.GetConfigJson">
+            <summary>
+            Returns the shopping cart check configuration as a JSON string.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.ShoppingCartSubmit.ApplyConfig(System.String)">
+            <summary>
+            Applies the configuration from a JSON string obtained by calling <see cref="M:QER.CompositionApi.ITShop.ShoppingCartSubmit.GetConfigJson"/>.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.ITShop.ShoppingCartSubmit.PerformAsyncCheckAsync(VI.DB.Entities.ISession,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Performs the check and writes the result to the ShoppingCartOrder and ShoppingCartItem objects.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.History.AssignChangeActionProvider">
+            <summary>
+            Default membership change action provider class.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.History.AssignChangeActionProvider.#ctor(VI.DB.Entities.ISession,System.DateTime)">
+            <summary>
+            Builds an action provider.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="referenceDate">This date is used to exclude assignments created by delegations that were active at this date.
+            Pass <see cref="F:System.DateTime.MinValue" /> to disable the delegation check.</param>
+        </member>
+        <member name="P:QER.CompositionApi.History.AssignChangeActionProvider.UidQerJustification">
+            <summary>
+            Gets or sets the UID of the justification text used to handle requests.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.History.AssignChangeActionProvider.NoHandleIndirectAssignment">
+            <summary>
+            Default handler for indirect assignments: cannot be handled
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.History.DynamicGroupComparison.WhereClauseHistorical">
+            <summary>
+            Returns the historical WHERE clause value, or <c>null</c> if the value was not changed.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.History.DynamicGroupComparisonState">
+            <summary>
+            Represents the four possible comparison states of dynamic group relationships.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.History.DynamicGroupComparisonState.DynamicUnchanged">
+            <summary>
+            The role was and still is managed by a dynamic group.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.History.DynamicGroupComparisonState.NoDynamicGroup">
+            <summary>
+            The role was not and still is not managed by a dynamic group.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.History.DynamicGroupComparisonState.DynamicGroupAdded">
+            <summary>
+            The role has transitioned from being unmanaged to being managed by a dynamic group.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.History.DynamicGroupComparisonState.DynamicGroupRemoved">
+            <summary>
+            The role was managed by a dynamic group, but is not anymore.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.History.RoleRestore">
+            <summary>
+            Provides actions to restore a role including its assignments.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Password.DialogUserPassword">
+            <summary>
+            Represents system user passwords.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Password.PasswordQuery">
+            <summary>
+            Helper class that provides the password recovery questions for a specified account name.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Password.PersonPassword">
+            <summary>
+            Represents the authenticated user's personal password.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Person.IEntitlementSourceProvider.GetSourcesAsync(VI.DB.Entities.ISession,VI.DB.DbObjectKey,System.String,System.Collections.Generic.IEnumerable{VI.DB.DbObjectKey},System.Threading.CancellationToken)">
+            <summary>
+            Returns sources for the specified entitlement and the specified person. This interface can be implemented
+            if an entitlement is not meaningful on its own, and the caller needs more information about the source
+            of the entitlements.
+            </summary>
+            <param name="key">Key of the entitlement.</param>
+            <param name="additionalEntitlements">Additional entitlements that should be included in the analysis, even
+            if the specified does not currently have them.</param>
+        </member>
+        <member name="T:QER.CompositionApi.Person.MailSubscriptionChange">
+            <summary>
+            Activates or de-activates an e-mail subscription for the current user.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Person.MailSubscriptionChange.UidMail">
+            <summary>
+            Unique identifiers of the e-mail objects to be processed.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Person.MailSubscriptionChange.Unsubscribe">
+            <summary>
+            Gets or sets a flag indicating whether the user wants to subscribe or unsubscribe.
+            </summary>
+        </member>
+        <member name="T:QER.CompositionApi.Person.QerProfileSettings">
+            <summary>
+            Serializable profile settings object for a user.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Person.QerProfileSettings.PreferredStatisticIdsOrder">
+            <summary>
+            List the order of the user's preferred statistics.
+            List of the user's preferred heatmaps.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Person.QerProfileSettings.Apply(QBM.CompositionApi.UserConfig.ProfileSettings)">
+            <summary>
+            Updates the profile with the supplied data.
+            </summary>
+            <param name="settings"></param>
+        </member>
+        <member name="T:QER.CompositionApi.Person.SetSessionCulture">
+            <summary>
+            Sets the session culture and time zone according to the user's profile.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Risk.RiskObject.ObjectKeyTargetLeaf">
+            <summary>
+            If <c>ObjectKeyTarget</c> points to an assignment table, and if
+            <c>ObjectKeySource</c> is empty, then this property contains the object key of the object referenced by
+            the assignment.
+            </summary>
+            <remarks>For example, if this is an AADUserInGroup object, then this property would
+            contain the key of the AADGroup object.</remarks>
+        </member>
+        <member name="T:QER.CompositionApi.Role.BaseTreeLoss">
+            <summary>
+            Provides information about loss of entitlements when deleting a direct assignment of an employee to a role.
+            </summary>
+            <remarks>The <c>PersonRoleRemove</c> evaluator provides "what-if" information about what entitlements an
+            employee would lose if the employee was removed from a specific role. The role can be any BaseTree object
+            (Department, cost center, location, business role, etc.).</remarks>
+        </member>
+        <member name="M:QER.CompositionApi.Role.BaseTreeLoss.#ctor(System.String,System.String)">
+            <summary>
+            Constructor for the PersonRoleRemove evaluator.
+            </summary>
+            <param name="uidPerson">UID of the employee whose assignment is to be removed</param>
+            <param name="uidBasetree">UID of the basetree of the assignment to be removed</param>
+        </member>
+        <member name="P:QER.CompositionApi.Role.BaseTreeLoss.UidPerson">
+            <summary>
+            UID of the employee.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Role.BaseTreeLoss.EntitlementsToIgnore">
+            <summary>
+            List of object keys for entitlements that will be ignored during the evaluation.
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Role.BaseTreeLoss.UidBasetree">
+            <summary>
+            UID of the BaseTree object.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Role.EntitlementLossAnalyzer.#ctor(System.String,System.Collections.Generic.IEnumerable{VI.DB.DbObjectKey})">
+            <summary>
+            Creates a loss analyzer for a combination of a person and a set of roles.
+            </summary>
+            <param name="uidPerson">UID of the person to analyze.</param>
+            <param name="keys">Object keys of the roles to analyze.</param>
+        </member>
+        <member name="M:QER.CompositionApi.Role.IRoleRecommendationService.GetRecommendationsAsync(VI.DB.Entities.ISession,VI.DB.DbObjectKey,System.Threading.CancellationToken)">
+            <summary>
+            Calculates recommendations for the manager of the role.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Role.IRoleRecommendationService.GetRecommendationsForManagerAsync(VI.DB.Entities.ISession,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Calculates recommendations for the manager of direct reports.
+            </summary>
+            <param name="uidOrgRootTarget">Role class UID of the role, used to calculate possible role assignments</param>
+            <returns></returns>
+        </member>
+        <member name="P:QER.CompositionApi.Role.IRoleRecommendationService.RoleAddThreshold">
+            <summary>
+            Gets the percentage threshold for membership above which an entitlement is considered to
+            be relevant for adding to the role.
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.Role.RoleSplitItemType.Keep">
+            <summary>
+            Keep the item on the source
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.Role.RoleSplitItemType.Copy">
+            <summary>
+            Copy to target and keep in source
+            </summary>
+        </member>
+        <member name="F:QER.CompositionApi.Role.RoleSplitItemType.Move">
+            <summary>
+            Move to target and delete in source
+            </summary>
+        </member>
+        <member name="P:QER.CompositionApi.Role.RoleAssignCompare.Key">
+            <summary>
+            Key of the entitlement object.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Role.RoleCompare.GetCompareItemsAsync(VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Returns a comparison between role 1 and role 2.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="ct">Supports cancellations.</param>
+        </member>
+        <member name="M:QER.CompositionApi.Role.RoleCompare.GetMergeActionsAsync(VI.DB.Entities.ISession,System.Collections.Generic.IEnumerable{QER.CompositionApi.Role.IRoleCompareItem},System.Threading.CancellationToken)">
+            <summary>
+            Returns the actions required to merge role 2 into role 1, so that role 2 can be deleted.
+            </summary>
+            <param name="session">Database session</param>
+            <param name="compareItems">Comparison items</param>
+            <param name="ct">Supports cancellations.</param>
+        </member>
+        <member name="T:QER.CompositionApi.Workflow.IWorkflowService">
+            <summary>
+            Manage UI hints for workflows.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Workflow.IWorkflowService.AddUiHint(System.String,QBM.CompositionApi.TranslatableKey)">
+            <summary>
+            Register a UI hint text for the specified workflow step.
+            </summary>
+        </member>
+        <member name="M:QER.CompositionApi.Workflow.IWorkflowService.TryGetUiHintAsync(System.String,VI.DB.Entities.ISession,System.Threading.CancellationToken)">
+            <summary>
+            Tries to obtain the UI hint text for the specified workflow step. If none is specified, a failed result is returned.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameLong">
+            <summary>
+            Long name of the company
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameShort">
+            <summary>
+            Short name of the company
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_CompanyNameTechnical">
+            <summary>
+            Company name for registry keys, directories, etc.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_Copyright">
+            <summary>
+            The copyright string.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_Copyright_Warning">
+            <summary>
+            The copy right warning string.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QBM_SupportMail">
+            <summary>
+            The support email address.
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_ProductNameFull">
+            <summary>
+            Full name for History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_ProductNameShort">
+            <summary>
+            Short name for History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QHD_TechnicalName">
+            <summary>
+            Technical name History Database
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_ProductNameFull">
+            <summary>
+            Full name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_ProductNameShort">
+            <summary>
+            Short name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_SuiteName">
+            <summary>
+            Suite Name
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_TechnicalName">
+            <summary>
+            Technical name for Identity Manager
+            </summary>
+        </member>
+        <member name="F:Quest.Globals.QIM_Abbreviation">
+            <summary>
+            Product abbreviation
+            </summary>
+        </member>
+    </members>
+</doc>
