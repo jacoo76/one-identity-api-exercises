@@ -481,7 +481,7 @@ namespace QBM.CompositionApi
                 }));
 
 
-            // Ex 05 - Predefined SQL
+            // Ex 05 - Predefined SQL - manos-dev-branch
             // Designer -> Base data -> Advanced -> Predifined SQL
             // to assign permission group to predifined SQL: Object Browser -> QBMGroupHasLimitedSQL -> Insert -> Foreign keys edit
 
