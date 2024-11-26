@@ -458,7 +458,7 @@ namespace QBM.CompositionApi
                         }, ct).ConfigureAwait(false);
 
 
-                        // Set the values for the new 'PersonWantsOrg' entity - test 1
+                        // Set the values for the new 'PersonWantsOrg' entity
                         await newPWOAssignment.PutValueAsync("UID_PersonInserted", uid_loggedinUser, ct).ConfigureAwait(false);
                         await newPWOAssignment.PutValueAsync("UID_PersonOrdered", uid_person_to_assign_group, ct).ConfigureAwait(false);
                         await newPWOAssignment.PutValueAsync("UID_Org", uid_org, ct).ConfigureAwait(false);
@@ -481,7 +481,7 @@ namespace QBM.CompositionApi
                 }));
 
 
-            // Ex 05 - Predefined SQL
+            // Ex 05 - Predefined SQL - manos-dev-branch
             // Designer -> Base data -> Advanced -> Predifined SQL
             // to assign permission group to predifined SQL: Object Browser -> QBMGroupHasLimitedSQL -> Insert -> Foreign keys edit
 
