@@ -33,7 +33,7 @@ namespace QBM.CompositionApi
         // The Build method is used to define API methods using the IApiBuilder
         public void Build(IApiBuilder builder)
         {
-            // Add a GET method named "api_exercises/get_helloworld" to the API
+            // Add a GET method with the endpoint called "api_exercises/get_helloworld" to the API
             builder
                 .AddMethod(Method.Define("api_exercises/get_helloworld")
                 .HandleGet((qr) =>
