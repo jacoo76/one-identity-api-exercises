@@ -26,6 +26,7 @@ using VI.DB.Sync;
 
 // a new comment for ex04
 // a new comment added for version testing
+// one more line
 namespace QBM.CompositionApi
 {
     // The MyExercises class implements the IApiProvider interfaces for the PortalApiProject
